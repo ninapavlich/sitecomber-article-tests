@@ -16,7 +16,8 @@ Returns successful when an article title and text is found using the Newspaper l
 
 You can specify a language other than english in the Site's test settings JSON:
 ```json
-	"lang": "en"
+	{
+		"lang": "en"
 	}
 ```
 See the Newspaper library for a list of supported languages.
