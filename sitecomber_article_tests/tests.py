@@ -25,3 +25,16 @@ class ReaderViewTest(BaseSiteTest):
             r.message = message
             r.status = status
             r.save()
+
+
+class PlaceholderTextTest(BaseSiteTest):
+    """
+    Looks for lorem or ipsum or tk
+    """
+
+    def on_page_parsed(self, page):
+        from sitecomber.apps.results.models import PageTestResult
+
+        if page.latest_request and page.latest_request.response and page.is_internal:
+
+            if is_reader_view_enabled(page.latest_request.response.text_content):
