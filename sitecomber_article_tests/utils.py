@@ -55,7 +55,7 @@ def contains_placeholder_text(page, settings):
         text_lower = article.text.lower()
         for placeholder_string in placeholder_strings:
             if placeholder_string in text_lower:
-                return True, u"Found placeholder string %s" % (placeholder_string)
+                return True, u'Found placeholder string "%s".' % (placeholder_string)
 
-    message = 'No placeholder text "%s" found.' % ('", "'.join(placeholder_strings))
+    message = 'No placeholder text "%s" found,' % ('", "'.join(placeholder_strings))
     return False, message
