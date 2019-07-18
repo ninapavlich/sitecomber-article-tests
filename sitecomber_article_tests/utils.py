@@ -83,12 +83,13 @@ def check_spelling(page, settings):
     custom_known_words = [] if 'known_words' not in settings else settings['known_words']
     if article.text:
 
-        check_words_raw = article.text.replace("\n", " ").replace("\r", " ").split(' ') + article.title.split(' ')
+        raw_text = u'%s %s' % (article.title, article.text)
+        check_words_raw = raw_text.text.replace("\n", " ").replace("\r", " ").replace("-", " ").split(' ')
         punctuation_removed = [word.strip('?:!.,;') for word in check_words_raw if word]
         numbers_removed = [word for word in punctuation_removed if not re.search('\d+', word)]
         check_words = numbers_removed
-
         misspelled = [item for item in list(spell.unknown(check_words)) if item not in custom_known_words]
+
         found_misspellings = len(misspelled) > 0
         message = "No misspellings found" if not found_misspellings else u'Found %s misspelling(s): "%s"' % (len(misspelled), '", "'.join(misspelled))
         return found_misspellings, message

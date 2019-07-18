@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 # this is a test
 setup(name='sitecomber-article-tests',
       description='Article related tests for Sitecomber',
-      version='0.0.8',
+      version='0.0.9',
       url='https://github.com/ninapavlich/sitecomber-article-tests',
       author='Nina Pavlich',
       author_email='nina@ninalp.com',
