@@ -1,5 +1,5 @@
 # sitecomber-article-tests
-Article related for [Sitecomber platform](https://github.com/ninapavlich/sitecomber)
+Article content tests for [Sitecomber platform](https://github.com/ninapavlich/sitecomber)
 
 
 ## Installation Instructions
