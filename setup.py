@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 # this is a test
 setup(name='sitecomber-article-tests',
       description='Article related tests for Sitecomber',
-      version='0.0.6',
+      version='0.0.7',
       url='https://github.com/ninapavlich/sitecomber-article-tests',
       author='Nina Pavlich',
       author_email='nina@ninalp.com',
@@ -10,7 +10,7 @@ setup(name='sitecomber-article-tests',
       packages=find_packages(),
       package_data={'sitecomber_article_tests': ['*.py', '*.html', '*.css', '*.js', '*.jpg', '*.png']},
       include_package_data=True,
-      install_requires=['newspaper3k'],
+      install_requires=['newspaper3k', 'readtime', 'pyspellchecker'],
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Environment :: Web Environment',
