@@ -12,7 +12,7 @@ class ReaderViewTest(BaseSiteTest):
     def on_page_parsed(self, page):
         from sitecomber.apps.results.models import PageTestResult
 
-        if page.latest_request and page.latest_request.response and page.latest_request.is_internal:
+        if page.latest_request and page.latest_request.response and page.is_internal:
 
             reader_view_enabled = is_reader_view_enabled(page.latest_request.response.text_content)
             status = PageTestResult.STATUS_SUCCESS if reader_view_enabled == 200 else PageTestResult.STATUS_ERROR
