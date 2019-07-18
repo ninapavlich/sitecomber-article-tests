@@ -89,8 +89,6 @@ def check_spelling(page, settings):
         check_words = numbers_removed
 
         misspelled = [item for item in list(spell.unknown(check_words)) if item not in custom_known_words]
-        print(check_words)
-        print(misspelled)
         found_misspellings = len(misspelled) > 0
         message = "No misspellings found" if not found_misspellings else u'Found %s misspelling(s): "%s"' % (len(misspelled), '", "'.join(misspelled))
         return found_misspellings, message
