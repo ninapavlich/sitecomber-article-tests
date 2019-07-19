@@ -4,6 +4,18 @@ from sitecomber.apps.shared.interfaces import BaseSiteTest
 from .utils import is_reader_view_enabled, contains_placeholder_text, get_article_readtime, check_spelling
 
 
+def should_test_page(page):
+    if not page.latest_request:
+        return False
+    if not page.is_internal:
+        return False
+    if not page.latest_request.response:
+        return False
+    if 'text/html' not in page.latest_request.response.content_type.lower():
+        return False
+    return True
+
+
 class ReaderViewTest(BaseSiteTest):
     """
     Is this page optimized for reader view?
@@ -13,7 +25,7 @@ class ReaderViewTest(BaseSiteTest):
     def on_page_parsed(self, page):
         from sitecomber.apps.results.models import PageTestResult
 
-        if page.latest_request and page.latest_request.response and page.is_internal:
+        if should_test_page(page):
 
             reader_view_enabled, status, message = is_reader_view_enabled(page, self.settings)
 
@@ -34,7 +46,7 @@ class PlaceholderTextTest(BaseSiteTest):
     def on_page_parsed(self, page):
         from sitecomber.apps.results.models import PageTestResult
 
-        if page.latest_request and page.latest_request.response and page.is_internal:
+        if should_test_page(page):
 
             placeholder_text, message = contains_placeholder_text(page, self.settings)
             status = PageTestResult.STATUS_SUCCESS if not placeholder_text else PageTestResult.STATUS_ERROR
@@ -57,7 +69,7 @@ class ArticleReadTimeInfo(BaseSiteTest):
     def on_page_parsed(self, page):
         from sitecomber.apps.results.models import PageTestResult
 
-        if page.latest_request and page.latest_request.response and page.is_internal:
+        if should_test_page(page):
 
             message = get_article_readtime(page, self.settings)
 
