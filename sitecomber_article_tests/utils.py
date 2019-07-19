@@ -152,8 +152,8 @@ def check_spelling(page, settings):
 
         # Remove anything matching a proper noun from above
         misspelled = [item for item in misspelled_raw if item not in proper_nouns_lower]
-        logger.info("misspelled:")
-        logger.info(misspelled)
+        # logger.info("misspelled:")
+        # logger.info(misspelled)
 
         found_misspellings = len(misspelled) > 0
         message = "No misspellings found" if not found_misspellings else u'Found %s misspelling(s): "%s"' % (len(misspelled), '", "'.join(misspelled))
