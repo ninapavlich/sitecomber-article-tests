@@ -6,7 +6,9 @@ from newspaper import Article
 from newspaper.utils import get_available_languages
 
 import nltk.data
-from nltk.corpus import stopwords
+from nltk.corpus import stopwords, words
+from nltk.stem.wordnet import WordNetLemmatizer
+from nltk.stem import SnowballStemmer
 
 import contractions
 
@@ -92,33 +94,42 @@ def check_spelling(page, settings):
 
     # TODO -- translate two digit language code to full word:
     stop_words = set(stopwords.words('english'))
+    dictionary = set(words.words())
+    lmtzr = WordNetLemmatizer()
+    snowball_stemmer = SnowballStemmer("english")
 
     article = get_article(page, settings)
     custom_known_words = [] if 'known_words' not in settings else settings['known_words']
     if article.text:
 
         raw_text = u'%s. %s' % (article.title, article.text)
-        # logger.info("raw_text:")
-        # logger.info(raw_text)
-        newlines_removed = raw_text.replace("\n", " ").replace("\r", " ")
-        whitespace_condensed = re.sub("[ \t]+", " ", newlines_removed.replace(u'\u200b', ' '))
-        # Replace fancy typigraphic characters like curly quotes and em dashes
-        typographic_translation_table = dict([(ord(x), ord(y)) for x, y in zip(u"‘’´“”–-", u"'''\"\"--")])
-        typography_removed = whitespace_condensed.translate(typographic_translation_table)
+        logger.debug("raw_text:")
+        logger.debug(raw_text)
 
-        # Remove contractions
-        contractions_removed = contractions.fix(typography_removed)
+        # Replace fancy typigraphic characters like curly quotes and em dashes
+        typographic_translation_table = dict([(ord(x), ord(y)) for x, y in zip(u"‘’´“”–-—", u"'''\"\"---")])
+        typography_removed = raw_text.translate(typographic_translation_table)
+        hyphens_removed = typography_removed.replace("-", " ")
+        newlines_removed = hyphens_removed.replace("\n", " ").replace("\r", " ")
+
+        contractions_removed = contractions.fix(newlines_removed)
         possessives_removed = re.sub("\'s ", " ", contractions_removed)
         hyphens_removed = possessives_removed.replace("-", " ")
+        acronyms_removed = re.sub(r"\b[A-Z\.]{2,}s?\b", "", hyphens_removed)
+
+        whitespace_condensed = re.sub("[ \t]+", " ", acronyms_removed.replace(u'\u200b', ' '))
+
+        # logger.info("whitespace_condensed:")
+        # logger.info(whitespace_condensed)
 
         tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 
         # Gather list of assumed proper nouns.
         # Assume anything capitalized in article is a local proper noun
         proper_nouns = []
-        for sentence in tokenizer.tokenize(hyphens_removed):
-            words = [word for word in sentence.split(' ') if word]
-            for word in words[1:]:
+        for sentence in tokenizer.tokenize(whitespace_condensed):
+            sentence_words = [word for word in sentence.split(' ') if word]
+            for word in sentence_words[1:]:
                 if word and word[0].isupper() and (word.lower() not in stop_words):
                     proper_nouns.append(word.strip(punctuation))
         proper_nouns_lower = [word.lower() for word in proper_nouns]
@@ -126,7 +137,7 @@ def check_spelling(page, settings):
         # logger.info(proper_nouns)
 
         # Split text into words
-        check_words_raw = hyphens_removed.split(' ')
+        check_words_raw = whitespace_condensed.split(' ')
         # logger.info("check_words_raw:")
         # logger.info(check_words_raw)
 
@@ -141,19 +152,36 @@ def check_spelling(page, settings):
         remove_empty_words = [word for word in punctuation_removed if word]
 
         remove_custom_words = [word for word in remove_empty_words if (word not in custom_known_words)]
+
+        # Remove anything matching a proper noun from above
+        remove_proper_nounds = [item for item in remove_custom_words if item.lower() not in proper_nouns_lower]
+
         # Reduce to unique set of words
-        check_words = list(set(remove_custom_words))
+        check_words = list(set(remove_proper_nounds))
         # logger.info("check_words:")
         # logger.info(check_words)
 
-        misspelled_raw = [item for item in list(spell.unknown(check_words))]
-        # logger.info("misspelled_raw:")
-        # logger.info(misspelled_raw)
+        # First check the corpus dictionary:
+        words_not_in_dict = [word for word in check_words if (word.lower() not in dictionary)]
+        # logger.info("words_not_in_dict:")
+        # logger.info(words_not_in_dict)
 
-        # Remove anything matching a proper noun from above
-        misspelled = [item for item in misspelled_raw if item not in proper_nouns_lower]
-        # logger.info("misspelled:")
-        # logger.info(misspelled)
+        unknown = [item for item in list(spell.unknown(words_not_in_dict))]
+        # logger.info("unknown:")
+        # logger.info(unknown)
+
+        # Finally, try lemmatizing and stemming to see if root words are valid
+        # TODO -- words like 'cartoonish' are getting flagged
+        misspelled = []
+        for word in unknown:
+            lemmatized = lmtzr.lemmatize(word)
+            if lemmatized not in dictionary:
+                stemmed = snowball_stemmer.stem(word)
+                if stemmed not in dictionary:
+                    misspelled.append(word)
+
+        logger.debug("misspelled:")
+        logger.debug(misspelled)
 
         found_misspellings = len(misspelled) > 0
         message = "No misspellings found" if not found_misspellings else u'Found %s misspelling(s): "%s"' % (len(misspelled), '", "'.join(misspelled))
