@@ -159,4 +159,4 @@ def check_spelling(page, settings):
         message = "No misspellings found" if not found_misspellings else u'Found %s misspelling(s): "%s"' % (len(misspelled), '", "'.join(misspelled))
         return found_misspellings, message
 
-    return True, 'No article found'
+    return False, 'No article found'

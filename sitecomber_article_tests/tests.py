@@ -90,7 +90,7 @@ class SpellCheckTest(BaseSiteTest):
 
     def on_page_parsed(self, page):
         from sitecomber.apps.results.models import PageTestResult
-        if page.latest_request and page.latest_request.response and page.is_internal:
+        if should_test_page(page):
 
             contains_misspellings, message = check_spelling(page, self.settings)
             status = PageTestResult.STATUS_SUCCESS if not contains_misspellings else PageTestResult.STATUS_ERROR
