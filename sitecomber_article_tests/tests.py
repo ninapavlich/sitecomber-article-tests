@@ -27,7 +27,7 @@ class ReaderViewTest(BaseSiteTest):
 
         if should_test_page(page):
 
-            reader_view_enabled, status, message = is_reader_view_enabled(page, self.settings)
+            reader_view_enabled, status, message, data = is_reader_view_enabled(page, self.settings)
 
             r, created = PageTestResult.objects.get_or_create(
                 page=page,
@@ -35,6 +35,7 @@ class ReaderViewTest(BaseSiteTest):
             )
             r.message = message
             r.status = status
+            r.data = data
             r.save()
 
 
@@ -48,7 +49,7 @@ class PlaceholderTextTest(BaseSiteTest):
 
         if should_test_page(page):
 
-            placeholder_text, message = contains_placeholder_text(page, self.settings)
+            placeholder_text, message, data = contains_placeholder_text(page, self.settings)
             status = PageTestResult.STATUS_SUCCESS if not placeholder_text else PageTestResult.STATUS_ERROR
 
             r, created = PageTestResult.objects.get_or_create(
@@ -57,6 +58,7 @@ class PlaceholderTextTest(BaseSiteTest):
             )
             r.message = message
             r.status = status
+            r.data = data
             r.save()
 
 
@@ -71,7 +73,7 @@ class ArticleReadTimeInfo(BaseSiteTest):
 
         if should_test_page(page):
 
-            message = get_article_readtime(page, self.settings)
+            message, data = get_article_readtime(page, self.settings)
 
             r, created = PageTestResult.objects.get_or_create(
                 page=page,
@@ -79,6 +81,7 @@ class ArticleReadTimeInfo(BaseSiteTest):
             )
             r.message = message
             r.status = PageTestResult.STATUS_INFO
+            r.data = data
             r.save()
 
 
@@ -92,7 +95,7 @@ class SpellCheckTest(BaseSiteTest):
         from sitecomber.apps.results.models import PageTestResult
         if should_test_page(page):
 
-            contains_misspellings, message = check_spelling(page, self.settings)
+            contains_misspellings, message, data = check_spelling(page, self.settings)
             status = PageTestResult.STATUS_SUCCESS if not contains_misspellings else PageTestResult.STATUS_ERROR
 
             r, created = PageTestResult.objects.get_or_create(
@@ -101,4 +104,5 @@ class SpellCheckTest(BaseSiteTest):
             )
             r.message = message
             r.status = status
+            r.data = data
             r.save()

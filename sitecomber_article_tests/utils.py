@@ -43,6 +43,7 @@ def is_reader_view_enabled(page, settings):
 
     reader_view_enabled = False
     messages = []
+    data = {}
     if article.text and article.title:
         status = "success"
         reader_view_enabled = True
@@ -54,27 +55,43 @@ def is_reader_view_enabled(page, settings):
         if not article.top_image:
             messages.append(u"WARNING: Aricle missing authors.")
             status = "warning"
+
+        data = {
+            'article': {
+                'text': article.text,
+                'title': article.title,
+                'authors': article.authors,
+                'publish_date': article.publish_date,
+                'top_image': article.top_image,
+                'imgs': article.imgs
+            }
+        }
     else:
         messages.append(u"Page missing a structured article.")
         status = "error"
 
     message = u" ".join(messages)
-    return reader_view_enabled, status, message
+    return reader_view_enabled, status, message, data
 
 
 def contains_placeholder_text(page, settings):
     article = get_article(page, settings)
 
     placeholder_words = ['lorem', 'ipsum'] if 'placeholder_words' not in settings else settings['placeholder_words']
-
+    data = {'placeholder_words_searched': placeholder_words, 'placeholder_words_found': []}
+    placeholder_words_found = []
     if article.text:
         text_lower = article.text.lower() + article.title.lower()
         for placeholder_string in placeholder_words:
             if placeholder_string in text_lower:
-                return True, u"Found placeholder word %s" % (placeholder_string)
+                placeholder_words_found.append(placeholder_string)
 
-    message = 'No placeholder text "%s" found.' % ('", "'.join(placeholder_words))
-    return False, message
+    data['placeholder_words_found'] = placeholder_words_found
+    if len(placeholder_words_found) > 0:
+        return True, u"Found placeholder word(s) %s" % ('", "'.join(placeholder_words_found)), data
+    else:
+        message = 'No placeholder text "%s" found.' % ('", "'.join(placeholder_words))
+        return False, message, data
 
 
 def get_article_readtime(page, settings):
@@ -82,9 +99,9 @@ def get_article_readtime(page, settings):
     article = get_article(page, settings)
     if article.text:
         result = readtime.of_text(article.text)
-        return str(result.text)
+        return str(result.text), {'read_time': str(result.text)}
 
-    return 'No article found'
+    return 'No article found', {}
 
 
 def check_spelling(page, settings):
@@ -98,15 +115,15 @@ def check_spelling(page, settings):
         misspelled = get_misspelled_words(raw_text, language, custom_known_words)
         found_misspellings = len(misspelled) > 0
         message = "No misspellings found" if not found_misspellings else u'Found %s misspelling(s): "%s"' % (len(misspelled), '", "'.join(misspelled))
-        return found_misspellings, message
+        return found_misspellings, message, {'misspelled_words': misspelled}
 
-    return False, 'No article found'
+    return False, 'No article found', {}
 
 suffixes = ['able', 'acy', 'al', 'al', 'ance', 'ate', 'dom', 'ed', 'en',
             'ence', 'er', 'es', 'esque', 'ful', 'fy', 'hood', 'ible', 'ic',
             'ical', 'ied', 'ier', 'ies', 'ify', 'iness', 'ing', 'ious', 'ise', 'ish', 'ism', 'ist',
-            'ity', 'ive', 'ize', 'izer', 'less', 'ly', 'mate', 'ment',  'ness',  'ous', 'pping', 'red',
-            'sion', 'tted', 'ting', 'tion', 'ty', 'ward', 'wards', 'wise', 'y', 'worthy', "zing",
+            'ity', 'ive', 'ize', 'izer', 'less', 'ly', 'mate', 'ment', 'ness', 'ous', 'pping', 'red',
+            'sion', 'tted', 'ting', 'tion', 'tize', 'ty', 'ward', 'wards', 'wise', 'y', 'worthy', "zing",
             "wide", "long"]
 suffix_replacements = {
     'iness': 'y',
@@ -120,6 +137,7 @@ suffix_replacements = {
     'ing': 'e',
     'pping': 'p',
     'red': 'e',
+    'tize': 'ty',
     'tted': 't',
     'tion': 'te',
     'ting': 'te',

@@ -37,6 +37,8 @@ modern_social_terminology = [
     "mom",
     "bandana",
     "transgender",
+    "cisgender",
+    "transvaginal",
     "descrimination",
     "anxious",
     "handwash",
@@ -70,7 +72,9 @@ adopted_words = [
     'queso',
     'quesadilla',
     'mitzvah',
-    'naïve'
+    'naïve',
+    'fiancée'
+    'à'
 
 ]
 
