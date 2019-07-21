@@ -7,13 +7,17 @@ Outstanding mis idenified words:
 - paycheck
 - hashtag
 - sleepover
+- bandanas
+- restrooms
+- sanitizer
+- handwash
 """
 
 
 def test():
     words_to_simplify = ['mustardy', 'misstated', 'rashy', 'rashiness', 'toddlerhood',
-                         'clinginess', 'seatmates', 'grandparenting', 'moisterizers']
-    expected_output = ['mustard', 'misstate', 'rash', 'rash', 'toddler', 'cling', 'seat', 'grandparent', 'moist']
+                         'clinginess', 'seatmates', 'grandparenting', 'moisterizers', 'recertified']
+    expected_output = ['mustard', 'misstate', 'rash', 'rash', 'toddler', 'cling', 'seat', 'grandparent', 'moist', 'recertify']
     output = []
     for word in words_to_simplify:
         output.append(simplify_word(word))
@@ -27,7 +31,8 @@ Acronym test: ABCD, A.B.C.D, and even A.B.C.Ds.
 Fancy typography test: This is a sentence with fancy curly quotes,” it’s great to have fancy typography like ‘single quotes’ ´back ticks various dashes –-—⁃ ellipses … and fancy bullets •∙
 Email test: abc user@xxx.com 123 any@www foo @ bar 78@ppp @5555 aa@111 testing @MyFancyHandle and use the hash tag #fancyhashtag
 Words separated by slashes: and/or happy/sad/etc
-Compound words test: grandparenting, toddlerhood, seatmates, mustardy, hallucinated, moisterizers, misstated, rashy, clinginess
+Compound words test: grandparenting, toddlerhood, seatmates, mustardy, hallucinated, moisterizers, misstated, rashy, clinginess,
+sanitizers handwashing recertified bandanas restrooms desensitized
     """
 
     misspelled_words = get_misspelled_words(test_text, "en")

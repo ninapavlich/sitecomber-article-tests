@@ -101,11 +101,12 @@ def check_spelling(page, settings):
 
 suffixes = ['able', 'acy', 'al', 'al', 'ance', 'ate', 'dom', 'ed', 'en',
             'ence', 'er', 'es', 'esque', 'ful', 'fy', 'hood', 'ible', 'ic',
-            'ical', 'ify', 'iness', 'ing', 'ious', 'ise', 'ish', 'ism', 'ist',
+            'ical', 'ied', 'ify', 'iness', 'ing', 'ious', 'ise', 'ish', 'ism', 'ist',
             'ity', 'ive', 'ize', 'izer', 'less', 'ly', 'mate', 'ment', 'ness', 'ous',
             'sion', 'tion', 'ty', 'ward', 'wards', 'wise', 'y']
 suffix_replacements = {
     'iness': 'y',
+    'ied': 'y',
     'ed': 'e',
     'es': 'e',
     'er': 'e',
@@ -133,7 +134,7 @@ def replace_prefix(word):
     for prefix in prefixes:
         if word.startswith(prefix):
             word_updated = word[len(prefix):]
-            logger.warn("Removing prefix %s from word %s: %s" % (prefix, word, word_updated))
+            logger.debug("Removing prefix %s from word %s: %s" % (prefix, word, word_updated))
             word = word_updated
 
             break
@@ -141,6 +142,7 @@ def replace_prefix(word):
 
 
 def replace_suffix(word):
+
     for suffix in suffixes:
         if word.endswith(suffix):
             word_updated = word[0:-len(suffix)]
@@ -148,72 +150,76 @@ def replace_suffix(word):
                 if suffix in suffix_replacements:
                     word_updated = word.replace(suffix, suffix_replacements[suffix])
 
-            logger.warn("Removing suffix %s from word %s: %s" % (suffix, word, word_updated))
+            logger.debug("Removing suffix %s from word %s: %s" % (suffix, word, word_updated))
             word = word_updated
             break
     return word
 
 
 def simplify_word(word):
-    logger.warn(u"--------- Simplifying %s ---------" % (word))
 
     original_word = word
+    log_level = logging.DEBUG  # logging.WARNING
+
+    logger.log(log_level, u"\n--------- Simplifying %s ---------" % (word))
 
     # simple singularlize:
     if word.endswith('s') and word[0:-1] in dictionary:
-        logger.warn("Simple desingularization returns valid word %s" % (word[0:-1]))
+        logger.log(log_level, "Simple singularization returns valid word %s" % (word[0:-1]))
         return word[0:-1]
 
     word = replace_suffix(word)
     if word in dictionary:
-        logger.warn("First round suffix replaced to get valid word %s" % (word))
+        logger.log(log_level, "First round suffix replaced to get valid word %s" % (word))
         return word
 
     word = replace_prefix(word)
     if word in dictionary:
-        logger.warn("First round prefix replaced to get valid word %s" % (word))
+        logger.log(log_level, "First round prefix replaced to get valid word %s" % (word))
         return word
 
     # simple singularlize:
     if word.endswith('s'):
         word = word[0:-1]
         if word in dictionary:
+            logger.log(log_level, "Second round singularization replaced to get valid word %s" % (word))
             return word
 
     word = replace_suffix(word)
     if word in dictionary:
-        logger.warn("Second round suffix replaced to get valid word %s" % (word))
+        logger.log(log_level, "Second round suffix replaced to get valid word %s" % (word))
         return word
 
     word = replace_prefix(word)
     if word in dictionary:
-        logger.warn("Second round prefix replaced to get valid word %s" % (word))
+        logger.log(log_level, "Second round prefix replaced to get valid word %s" % (word))
         return word
 
     # simple singularlize:
     if word.endswith('s'):
         word = word[0:-1]
         if word in dictionary:
+            logger.log(log_level, "Third round singularization replaced to get valid word %s" % (word))
             return word
 
     word = replace_suffix(word)
     if word in dictionary:
-        logger.warn("Third round suffix replaced to get valid word %s" % (word))
+        logger.log(log_level, "Third round suffix replaced to get valid word %s" % (word))
         return word
 
     word = replace_prefix(word)
     if word in dictionary:
-        logger.warn("Third round prefix replaced to get valid word %s" % (word))
+        logger.log(log_level, "Third round prefix replaced to get valid word %s" % (word))
         return word
 
     lemmatized = lmtzr.lemmatize(word)
     if lemmatized in dictionary:
-        logger.warn("Lemmatizer returned valid word %s" % (lemmatized))
+        logger.log(log_level, "Lemmatizer returned valid word %s" % (lemmatized))
         return lemmatized
 
     stemmed = snowball_stemmer.stem(word)
     if stemmed in dictionary:
-        logger.warn("Stemmer returned valid word %s" % (stemmed))
+        logger.log(log_level, "Stemmer returned valid word %s" % (stemmed))
         return stemmed
 
     logger.warn("No simplified version found, return original %s" % (original_word))
