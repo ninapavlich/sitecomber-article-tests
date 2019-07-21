@@ -15,9 +15,13 @@ Outstanding mis idenified words:
 
 
 def test():
-    words_to_simplify = ['mustardy', 'misstated', 'rashy', 'rashiness', 'toddlerhood',
-                         'clinginess', 'seatmates', 'grandparenting', 'moisterizers', 'recertified']
-    expected_output = ['mustard', 'misstate', 'rash', 'rash', 'toddler', 'cling', 'seat', 'grandparent', 'moist', 'recertify']
+    words_to_simplify = ['mustardy', 'misstated', 'rashy', 'rashiness',
+                         'toddlerhood', 'clinginess', 'seatmates',
+                         'grandparenting', 'moisterizers', 'recertified',
+                         'antidescrimination']
+    expected_output = ['mustard', 'misstate', 'rash', 'rash', 'toddler',
+                       'cling', 'seat', 'grandparent', 'moist', 'recertify',
+                       'descrimination']
     output = []
     for word in words_to_simplify:
         output.append(simplify_word(word))

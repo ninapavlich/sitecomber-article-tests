@@ -110,7 +110,8 @@ suffix_replacements = {
     'ed': 'e',
     'es': 'e',
     'er': 'e',
-    'ence': 'e'
+    'ence': 'e',
+    'tion': 'te'
 }
 prefixes = [
     'ante', 'anti', 'auto', 'bi', 'bis', 'co', 'de', 'dis', 'ex', 'extra', 'in',
@@ -129,12 +130,14 @@ dictionary = set(words.words())
 lmtzr = WordNetLemmatizer()
 snowball_stemmer = SnowballStemmer("english")
 
+log_level = logging.WARNING  # logging.WARNING
+
 
 def replace_prefix(word):
     for prefix in prefixes:
         if word.startswith(prefix):
             word_updated = word[len(prefix):]
-            logger.debug("Removing prefix %s from word %s: %s" % (prefix, word, word_updated))
+            logger.log(log_level, u"Removing prefix %s from word %s: %s" % (prefix, word, word_updated))
             word = word_updated
 
             break
@@ -150,7 +153,7 @@ def replace_suffix(word):
                 if suffix in suffix_replacements:
                     word_updated = word.replace(suffix, suffix_replacements[suffix])
 
-            logger.debug("Removing suffix %s from word %s: %s" % (suffix, word, word_updated))
+            logger.log(log_level, u"Removing suffix %s from word %s: %s" % (suffix, word, word_updated))
             word = word_updated
             break
     return word
@@ -159,8 +162,6 @@ def replace_suffix(word):
 def simplify_word(word):
 
     original_word = word
-    log_level = logging.DEBUG  # logging.WARNING
-
     logger.log(log_level, u"\n--------- Simplifying %s ---------" % (word))
 
     # simple singularlize:
