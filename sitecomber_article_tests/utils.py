@@ -103,7 +103,7 @@ suffixes = ['able', 'acy', 'al', 'al', 'ance', 'ate', 'dom', 'ed', 'en',
             'ence', 'er', 'es', 'esque', 'ful', 'fy', 'hood', 'ible', 'ic',
             'ical', 'ied', 'ify', 'iness', 'ing', 'ious', 'ise', 'ish', 'ism', 'ist',
             'ity', 'ive', 'ize', 'izer', 'less', 'ly', 'mate', 'ment', 'ness', 'ous',
-            'sion', 'tion', 'ty', 'ward', 'wards', 'wise', 'y']
+            'sion', 'tion', 'ty', 'ward', 'wards', 'wise', 'y', 'worthy']
 suffix_replacements = {
     'iness': 'y',
     'ied': 'y',

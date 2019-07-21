@@ -11,6 +11,7 @@ Outstanding mis idenified words:
 - restroom
 - sanitizer
 - handwash
+- descrimination
 """
 
 
@@ -18,10 +19,10 @@ def test():
     words_to_simplify = ['mustardy', 'misstated', 'rashy', 'rashiness',
                          'toddlerhood', 'clinginess', 'seatmates',
                          'grandparenting', 'moisterizers', 'recertified',
-                         'antidescrimination']
+                         'cringeworthy']
     expected_output = ['mustard', 'misstate', 'rash', 'rash', 'toddler',
                        'cling', 'seat', 'grandparent', 'moist', 'recertify',
-                       'descrimination']
+                       'cringe']
     output = []
     for word in words_to_simplify:
         output.append(simplify_word(word))
