@@ -65,3 +65,12 @@ You can provide custom words to the dictionary by specifying "known_words" in th
 	}
 ```
 
+## Testing Instructions
+To test utility functions, run the following:
+
+```bash
+    virtualenv venv -p python3
+    source venv/bin/activate
+    pip install -r requirements.txt
+    python unit_tests.py
+```
