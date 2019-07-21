@@ -16,13 +16,14 @@ Outstanding mis idenified words:
 
 
 def test():
+
     words_to_simplify = ['mustardy', 'misstated', 'rashy', 'rashiness',
                          'toddlerhood', 'clinginess', 'seatmates',
                          'grandparenting', 'moisterizers', 'recertified',
-                         'cringeworthy']
+                         'cringeworthy', 'reoccurred', 'misappropriating', 'handwashing']
     expected_output = ['mustard', 'misstate', 'rash', 'rash', 'toddler',
                        'cling', 'seat', 'grandparent', 'moist', 'recertify',
-                       'cringe']
+                       'cringe', 'reoccur', 'misappropriate', 'handwash']
     output = []
     for word in words_to_simplify:
         output.append(simplify_word(word))
@@ -37,7 +38,7 @@ Fancy typography test: This is a sentence with fancy curly quotes,” it’s gre
 Email test: abc user@xxx.com 123 any@www foo @ bar 78@ppp @5555 aa@111 testing @MyFancyHandle and use the hash tag #fancyhashtag
 Words separated by slashes: and/or happy/sad/etc
 Compound words test: grandparenting, toddlerhood, seatmates, mustardy, hallucinated, moisterizers, misstated, rashy, clinginess,
-sanitizers handwashing recertified bandanas restrooms desensitized
+sanitizers handwashing recertified bandanas restrooms desensitized weepier scrunchies misappropriating iphones gummy candy yearslong medicating flatline telecommute
     """
 
     misspelled_words = get_misspelled_words(test_text, "en")

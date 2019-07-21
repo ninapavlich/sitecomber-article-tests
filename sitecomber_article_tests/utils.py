@@ -6,7 +6,7 @@ from newspaper import Article
 from newspaper.utils import get_available_languages
 
 import nltk.data
-from nltk.corpus import stopwords, words
+from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.stem import SnowballStemmer
 
@@ -15,6 +15,9 @@ import contractions
 import readtime
 
 from spellchecker import SpellChecker
+
+from .dictionary import dictionary
+
 
 logger = logging.getLogger('django')
 
@@ -101,18 +104,28 @@ def check_spelling(page, settings):
 
 suffixes = ['able', 'acy', 'al', 'al', 'ance', 'ate', 'dom', 'ed', 'en',
             'ence', 'er', 'es', 'esque', 'ful', 'fy', 'hood', 'ible', 'ic',
-            'ical', 'ied', 'ify', 'iness', 'ing', 'ious', 'ise', 'ish', 'ism', 'ist',
-            'ity', 'ive', 'ize', 'izer', 'less', 'ly', 'mate', 'ment', 'ness', 'ous',
-            'sion', 'tion', 'ty', 'ward', 'wards', 'wise', 'y', 'worthy']
+            'ical', 'ied', 'ier', 'ies', 'ify', 'iness', 'ing', 'ious', 'ise', 'ish', 'ism', 'ist',
+            'ity', 'ive', 'ize', 'izer', 'less', 'ly', 'mate', 'ment',  'ness',  'ous', 'pping', 'red',
+            'sion', 'tted', 'ting', 'tion', 'ty', 'ward', 'wards', 'wise', 'y', 'worthy', "zing",
+            "wide", "long"]
 suffix_replacements = {
     'iness': 'y',
     'ied': 'y',
+    'ier': 'y',
+    'ies': 'y',
     'ed': 'e',
     'es': 'e',
     'er': 'e',
     'ence': 'e',
-    'tion': 'te'
+    'ing': 'e',
+    'pping': 'p',
+    'red': 'e',
+    'tted': 't',
+    'tion': 'te',
+    'ting': 'te',
+    'zing': 'ze'
 }
+
 prefixes = [
     'ante', 'anti', 'auto', 'bi', 'bis', 'co', 'de', 'dis', 'ex', 'extra', 'in',
     'ig', 'ir', 'im', 'en', 'inter', 'macro', 'micro', 'mega', 'mini', 'mal',
@@ -126,11 +139,10 @@ prefixes.reverse()
 
 
 stop_words = set(stopwords.words('english'))
-dictionary = set(words.words())
 lmtzr = WordNetLemmatizer()
 snowball_stemmer = SnowballStemmer("english")
 
-log_level = logging.WARNING  # logging.WARNING
+log_level = logging.DEBUG  # logging.WARNING
 
 
 def replace_prefix(word):
@@ -153,7 +165,7 @@ def replace_suffix(word):
                 if suffix in suffix_replacements:
                     word_updated = word.replace(suffix, suffix_replacements[suffix])
 
-            logger.log(log_level, u"Removing suffix %s from word %s: %s" % (suffix, word, word_updated))
+            logger.log(log_level, u"Removing suffix %s from word %s: %s -- %s" % (suffix, word, word_updated, (word_updated in dictionary)))
             word = word_updated
             break
     return word
@@ -237,7 +249,7 @@ def get_misspelled_words(raw_text, language, custom_known_words=[]):
     logger.debug(raw_text)
 
     # Replace fancy typigraphic characters like curly quotes and em dashes
-    typographic_translation_table = dict([(ord(x), ord(y)) for x, y in zip(u"‘’´“”–-—⁃…•∙", u"'''\"\"----.--")])
+    typographic_translation_table = dict([(ord(x), ord(y)) for x, y in zip(u"‘’´“”–-—⁃…●•∙", u"'''\"\"----.---")])
     typography_removed = raw_text.translate(typographic_translation_table)
     hyphens_removed = typography_removed.replace("-", " ").replace("/", " ")
     newlines_removed = hyphens_removed.replace("\n", " ").replace("\r", " ")
