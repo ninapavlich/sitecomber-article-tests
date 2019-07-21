@@ -8,7 +8,7 @@ Outstanding mis idenified words:
 - hashtag
 - sleepover
 - bandanas
-- restrooms
+- restroom
 - sanitizer
 - handwash
 """
