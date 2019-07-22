@@ -1,3 +1,5 @@
+import json
+
 from sitecomber.apps.shared.interfaces import BaseSiteTest
 
 
@@ -35,7 +37,7 @@ class ReaderViewTest(BaseSiteTest):
             )
             r.message = message
             r.status = status
-            r.data = data
+            r.data = json.dumps(data, sort_keys=True, indent=2)
             r.save()
 
 
@@ -58,7 +60,7 @@ class PlaceholderTextTest(BaseSiteTest):
             )
             r.message = message
             r.status = status
-            r.data = data
+            r.data = json.dumps(data, sort_keys=True, indent=2)
             r.save()
 
 
@@ -81,7 +83,7 @@ class ArticleReadTimeInfo(BaseSiteTest):
             )
             r.message = message
             r.status = PageTestResult.STATUS_INFO
-            r.data = data
+            r.data = json.dumps(data, sort_keys=True, indent=2)
             r.save()
 
 
@@ -104,5 +106,5 @@ class SpellCheckTest(BaseSiteTest):
             )
             r.message = message
             r.status = status
-            r.data = data
+            r.data = json.dumps(data, sort_keys=True, indent=2)
             r.save()

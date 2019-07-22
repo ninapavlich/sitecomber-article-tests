@@ -30,7 +30,8 @@ modern_technical_terminology = [
     "download",
     "listserv",
     "screensaver",
-    "telecommute"
+    "telecommute",
+    "multitask"
 ]
 modern_social_terminology = [
     "who'd",
@@ -44,7 +45,6 @@ modern_social_terminology = [
     "handwash",
     "restroom",
     "sanitizer",
-
     "misappropriate",
     "dystopian",
     "scrunchy",
@@ -62,7 +62,13 @@ modern_social_terminology = [
     "cilantro",
     "reframing",
     "midcentury",
-    "flatline"
+    "flatline",
+    "weeknight",
+    "prenup",
+    "multigenerational",
+    "microfiber",
+    "uppercase",
+    "lowercase",
 ]
 
 adopted_words = [
@@ -74,7 +80,8 @@ adopted_words = [
     'mitzvah',
     'naïve',
     'fiancée'
-    'à'
+    'à',
+    'latte'
 
 ]
 

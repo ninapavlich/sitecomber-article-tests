@@ -39,7 +39,7 @@ Email test: abc user@xxx.com 123 any@www foo @ bar 78@ppp @5555 aa@111 testing @
 Words separated by slashes: and/or happy/sad/etc
 Compound words test: grandparenting, toddlerhood, seatmates, mustardy, hallucinated, moisterizers, misstated, rashy, clinginess,
 sanitizers handwashing recertified bandanas restrooms desensitized weepier scrunchies misappropriating iphones gummy candy yearslong medicating flatline telecommute
-emailed transvaginal
+emailed transvaginal commoditize
     """
 
     misspelled_words = get_misspelled_words(test_text, "en")
