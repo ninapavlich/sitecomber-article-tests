@@ -1,9 +1,11 @@
+import logging
 import json
 
 from sitecomber.apps.shared.interfaces import BaseSiteTest
 
-
 from .utils import is_reader_view_enabled, contains_placeholder_text, get_article_readtime, check_spelling
+
+logger = logging.getLogger('django')
 
 
 def should_test_page(page):
@@ -37,7 +39,10 @@ class ReaderViewTest(BaseSiteTest):
             )
             r.message = message
             r.status = status
-            r.data = json.dumps(data, sort_keys=True, indent=2)
+            try:
+                r.data = json.dumps(data, sort_keys=True, indent=2)
+            except ValueError:
+                logger.error(u"Error parsing demping JSON data: %s" % (data))
             r.save()
 
 
@@ -60,7 +65,10 @@ class PlaceholderTextTest(BaseSiteTest):
             )
             r.message = message
             r.status = status
-            r.data = json.dumps(data, sort_keys=True, indent=2)
+            try:
+                r.data = json.dumps(data, sort_keys=True, indent=2)
+            except ValueError:
+                logger.error(u"Error parsing demping JSON data: %s" % (data))
             r.save()
 
 
@@ -83,7 +91,10 @@ class ArticleReadTimeInfo(BaseSiteTest):
             )
             r.message = message
             r.status = PageTestResult.STATUS_INFO
-            r.data = json.dumps(data, sort_keys=True, indent=2)
+            try:
+                r.data = json.dumps(data, sort_keys=True, indent=2)
+            except ValueError:
+                logger.error(u"Error parsing demping JSON data: %s" % (data))
             r.save()
 
 
@@ -106,5 +117,8 @@ class SpellCheckTest(BaseSiteTest):
             )
             r.message = message
             r.status = status
-            r.data = json.dumps(data, sort_keys=True, indent=2)
+            try:
+                r.data = json.dumps(data, sort_keys=True, indent=2)
+            except ValueError:
+                logger.error(u"Error parsing demping JSON data: %s" % (data))
             r.save()

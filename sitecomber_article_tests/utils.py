@@ -119,36 +119,31 @@ def check_spelling(page, settings):
 
     return False, 'No article found', {}
 
-suffixes = ['able', 'acy', 'al', 'al', 'ance', 'ate', 'dom', 'ed', 'en',
-            'ence', 'er', 'es', 'esque', 'ful', 'fy', 'hood', 'ible', 'ic',
-            'ical', 'ied', 'ier', 'ies', 'ify', 'iness', 'ing', 'ious', 'ise', 'ish', 'ism', 'ist',
-            'ity', 'ive', 'ize', 'izer', 'less', 'ly', 'mate', 'ment', 'ness', 'ous', 'pping', 'red',
-            'sion', 'tted', 'ting', 'tion', 'tize', 'ty', 'ward', 'wards', 'wise', 'y', 'worthy', "zing",
-            "wide", "long"]
+suffixes = ['able', 'acy', 'al', 'al', 'ance', 'ate', 'bility', 'bio', 'dom', 'ed', 'en', 'ence', 'er', 'erizer', 'es', 'esque', 'est', 'ful', 'fy', 'hood', 'ible', 'ic', 'ical', 'ied', 'ier', 'ies', 'iest', 'ify', 'iness', 'ing', 'ious', 'ise', 'ish', 'ism', 'ist', 'ity', 'ive', 'ize', 'izer', 'less', 'like', 'long', 'ly', 'mate', 'ment', 'ness', 'ologist', 'ous', 'pping', 'red', 'sion', 'ting', 'tion', 'tize', 'tted', 'ty', 'ward', 'wards', 'wide', 'wise', 'worthy', 'y', 'zing']
 suffix_replacements = {
-    'iness': 'y',
-    'ied': 'y',
-    'ier': 'y',
-    'ies': 'y',
-    'ed': 'e',
-    'es': 'e',
-    'er': 'e',
-    'ence': 'e',
-    'ing': 'e',
-    'pping': 'p',
-    'red': 'e',
-    'tize': 'ty',
-    'tted': 't',
-    'tion': 'te',
-    'ting': 'te',
-    'zing': 'ze'
+    'bility': ['ble'],
+    'iness': ['y'],
+    'ied': ['y'],
+    'ier': ['y'],
+    'ies': ['y'],
+    'iest': ['y'],
+    'ity': ['y'],
+    'ed': ['e'],
+    'es': ['e'],
+    'er': ['e'],
+    'ence': ['e'],
+    'ing': ['e'],
+    'ologist': ['ology'],
+    'pping': ['p'],
+    'red': ['re'],
+    'tize': ['ty', 't'],
+    'tted': ['t'],
+    'tion': ['te'],
+    'ting': ['te', 't'],
+    'zing': ['ze', 'z']
 }
 
-prefixes = [
-    'ante', 'anti', 'auto', 'bi', 'bis', 'co', 'de', 'dis', 'ex', 'extra', 'in',
-    'ig', 'ir', 'im', 'en', 'inter', 'macro', 'micro', 'mega', 'mini', 'mal',
-    'mono', 'multi', 'mis', 'non', 'omni', 'penta', 'per', 'poly', 'post', 'pre',
-    'pro', 'quad', 're', 'retro', 'semi', 'sub', 'super', 'tran', 'tri', 'un', 'uni']
+prefixes = ['ante', 'anti', 'auto', 'bi', 'bis', 'co', 'de', 'dis', 'en', 'ex', 'extra', 'hyper', 'ig', 'im', 'in', 'inter', 'ir', 'macro', 'mal', 'mega', 'micro', 'mini', 'mis', 'mono', 'multi', 'non', 'omni', 'over', 'penta', 'per', 'poly', 'post', 'pre', 'pro', 'quad', 're', 'retro', 'semi', 'socio', 'sub', 'super', 'tran', 'tri', 'un', 'under', 'uni']
 # Sort prefixes and suffixes from longest to shortest
 suffixes.sort(key=lambda s: len(s))
 suffixes.reverse()
@@ -160,36 +155,54 @@ stop_words = set(stopwords.words('english'))
 lmtzr = WordNetLemmatizer()
 snowball_stemmer = SnowballStemmer("english")
 
-log_level = logging.DEBUG  # logging.WARNING
 
-
-def replace_prefix(word):
+def replace_prefix(word, debug=False):
+    log_level = logging.WARNING if debug else logging.DEBUG
     for prefix in prefixes:
         if word.startswith(prefix):
             word_updated = word[len(prefix):]
-            logger.log(log_level, u"Removing prefix %s from word %s: %s" % (prefix, word, word_updated))
-            word = word_updated
+            logger.log(log_level, u"Attempting to remove prefix '%s' from word %s.... %s" % (prefix, word, word_updated))
+            if word_updated in dictionary:
+                logger.log(log_level, u"Removing prefix '%s' from word %s: %s --> %s" % (prefix, word, word_updated, (word_updated in dictionary)))
+                return word_updated
 
-            break
     return word
 
 
-def replace_suffix(word):
-
+def replace_suffix(word, debug=False):
+    log_level = logging.WARNING if debug else logging.DEBUG
     for suffix in suffixes:
         if word.endswith(suffix):
             word_updated = word[0:-len(suffix)]
-            if word_updated not in dictionary:
-                if suffix in suffix_replacements:
-                    word_updated = word.replace(suffix, suffix_replacements[suffix])
+            logger.log(log_level, u"Attempting to remove suffix '%s' from word %s....%s" % (suffix, word, word_updated))
+            if word_updated in dictionary:
+                logger.log(log_level, u"Removing suffix '%s' from word %s: %s --> %s" % (suffix, word, word_updated, (word_updated in dictionary)))
+                return word_updated
 
-            logger.log(log_level, u"Removing suffix %s from word %s: %s -- %s" % (suffix, word, word_updated, (word_updated in dictionary)))
-            word = word_updated
-            break
+            prefix_replaced = replace_prefix(word_updated, debug)
+            if prefix_replaced in dictionary:
+                logger.log(log_level, u"Removing suffix '%s' and prefix from word %s: %s --> %s" % (suffix, word, prefix_replaced, (prefix_replaced in dictionary)))
+                return prefix_replaced
+
+            # suffix may need to be replaced with better ending
+            if suffix in suffix_replacements:
+                for suffix_replacement in suffix_replacements[suffix]:
+                    replaced = word.replace(suffix, suffix_replacement)
+                    logger.log(log_level, u"Attempting to replace suffix '%s' with '%s' to get %s" % (suffix, suffix_replacement, replaced))
+                    if replaced in dictionary:
+                        logger.log(log_level, u"Removing suffix '%s' from word %s: %s --> %s" % (suffix, word, replaced, (replaced in dictionary)))
+                        return replaced
+
+                    prefix_replaced = replace_prefix(replaced, debug)
+                    if prefix_replaced in dictionary:
+                        logger.log(log_level, u"Removing suffix '%s' and prefix from word %s: %s --> %s" % (suffix, word, prefix_replaced, (prefix_replaced in dictionary)))
+                        return prefix_replaced
+
     return word
 
 
-def simplify_word(word):
+def simplify_word(word, debug=False):
+    log_level = logging.WARNING if debug else logging.DEBUG
 
     original_word = word
     logger.log(log_level, u"\n--------- Simplifying %s ---------" % (word))
@@ -199,12 +212,12 @@ def simplify_word(word):
         logger.log(log_level, "Simple singularization returns valid word %s" % (word[0:-1]))
         return word[0:-1]
 
-    word = replace_suffix(word)
+    word = replace_suffix(word, debug)
     if word in dictionary:
         logger.log(log_level, "First round suffix replaced to get valid word %s" % (word))
         return word
 
-    word = replace_prefix(word)
+    word = replace_prefix(word, debug)
     if word in dictionary:
         logger.log(log_level, "First round prefix replaced to get valid word %s" % (word))
         return word
@@ -216,12 +229,12 @@ def simplify_word(word):
             logger.log(log_level, "Second round singularization replaced to get valid word %s" % (word))
             return word
 
-    word = replace_suffix(word)
+    word = replace_suffix(word, debug)
     if word in dictionary:
         logger.log(log_level, "Second round suffix replaced to get valid word %s" % (word))
         return word
 
-    word = replace_prefix(word)
+    word = replace_prefix(word, debug)
     if word in dictionary:
         logger.log(log_level, "Second round prefix replaced to get valid word %s" % (word))
         return word
@@ -233,27 +246,61 @@ def simplify_word(word):
             logger.log(log_level, "Third round singularization replaced to get valid word %s" % (word))
             return word
 
-    word = replace_suffix(word)
+    word = replace_suffix(word, debug)
     if word in dictionary:
         logger.log(log_level, "Third round suffix replaced to get valid word %s" % (word))
         return word
 
-    word = replace_prefix(word)
+    word = replace_prefix(word, debug)
     if word in dictionary:
         logger.log(log_level, "Third round prefix replaced to get valid word %s" % (word))
         return word
 
-    lemmatized = lmtzr.lemmatize(word)
+    # Now try lemmatizing / stemming
+    lemmatized = lmtzr.lemmatize(original_word)
     if lemmatized in dictionary:
         logger.log(log_level, "Lemmatizer returned valid word %s" % (lemmatized))
         return lemmatized
 
-    stemmed = snowball_stemmer.stem(word)
+    stemmed = snowball_stemmer.stem(original_word)
     if stemmed in dictionary:
         logger.log(log_level, "Stemmer returned valid word %s" % (stemmed))
         return stemmed
 
-    logger.warn("No simplified version found, return original %s" % (original_word))
+    # Now try starting with prefixes first:
+    word = original_word
+    if word.endswith('s') and word[0:-1] in dictionary:
+        logger.log(log_level, "Simple singularization returns valid word %s" % (word[0:-1]))
+        return word[0:-1]
+
+    word = replace_prefix(word, debug)
+    if word in dictionary:
+        logger.log(log_level, "Fourth round prefix replaced to get valid word %s" % (word))
+        return word
+
+    word = replace_suffix(word, debug)
+    if word in dictionary:
+        logger.log(log_level, "Fourth round suffix replaced to get valid word %s" % (word))
+        return word
+
+    # simple singularlize:
+    if word.endswith('s'):
+        word = word[0:-1]
+        if word in dictionary:
+            logger.log(log_level, "Fifth round singularization replaced to get valid word %s" % (word))
+            return word
+
+    word = replace_suffix(word, debug)
+    if word in dictionary:
+        logger.log(log_level, "Fifth round suffix replaced to get valid word %s" % (word))
+        return word
+
+    word = replace_prefix(word, debug)
+    if word in dictionary:
+        logger.log(log_level, "Fifth round prefix replaced to get valid word %s" % (word))
+        return word
+
+    logger.log(log_level, "No simplified version found, return original %s" % (original_word))
     return original_word
 
 
@@ -267,7 +314,7 @@ def get_misspelled_words(raw_text, language, custom_known_words=[]):
     logger.debug(raw_text)
 
     # Replace fancy typigraphic characters like curly quotes and em dashes
-    typographic_translation_table = dict([(ord(x), ord(y)) for x, y in zip(u"‘’´“”–-—⁃…●•∙", u"'''\"\"----.---")])
+    typographic_translation_table = dict([(ord(x), ord(y)) for x, y in zip(u"‘’´“”–-—⁃‐…●•∙", u"'''\"\"-----.---")])
     typography_removed = raw_text.translate(typographic_translation_table)
     hyphens_removed = typography_removed.replace("-", " ").replace("/", " ")
     newlines_removed = hyphens_removed.replace("\n", " ").replace("\r", " ")
