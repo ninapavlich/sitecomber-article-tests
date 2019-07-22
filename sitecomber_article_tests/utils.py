@@ -342,7 +342,7 @@ def get_misspelled_words(raw_text, language, custom_known_words=[]):
     proper_nouns = []
     for sentence in tokenizer.tokenize(whitespace_condensed):
         sentence_words = [word for word in sentence.split(' ') if word]
-        for word in sentence_words[1:]:
+        for word in sentence_words:
             if word and word[0].isupper() and (word.lower() not in stop_words):
                 proper_nouns.append(word.strip(punctuation))
     proper_nouns_lower = [word.lower() for word in proper_nouns]
