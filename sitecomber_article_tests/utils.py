@@ -319,11 +319,13 @@ def get_misspelled_words(raw_text, language, custom_known_words=[]):
     hyphens_removed = typography_removed.replace("-", " ").replace("/", " ")
     newlines_removed = hyphens_removed.replace("\n", " ").replace("\r", " ")
 
-    # Remove email addresses
+    # Remove email addresses, hashes, urls, phone numbers...
     emails_removed = re.sub(r"\S*@\S*\s?", "", newlines_removed)
     hashes_removed = re.sub(r"#(\w+)", "", emails_removed)
+    phonenumbers_removed = re.sub(r"(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})", "", hashes_removed)
+    urls_removed = re.sub(r"([\w\.]+\.(?:com|org|net|us|co|edu|gov|uk)[^,\s]*)", "", phonenumbers_removed)
 
-    contractions_removed = contractions.fix(hashes_removed)
+    contractions_removed = contractions.fix(urls_removed)
     possessives_removed = re.sub("\'s ", " ", contractions_removed)
     hyphens_removed = possessives_removed.replace("-", " ")
     acronyms_removed = re.sub(r"\b[A-Z\.]{2,}s?\b", "", hyphens_removed)

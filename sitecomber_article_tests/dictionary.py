@@ -86,7 +86,7 @@ modern_social_terminology = [
     "microfiber",
     "agent",
     "caregiver",
-    "pushups",
+    "pushup",
     "moisturizer",
     "bedsheet",
     "spritz",
