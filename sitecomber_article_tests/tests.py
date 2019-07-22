@@ -41,8 +41,8 @@ class ReaderViewTest(BaseSiteTest):
             r.status = status
             try:
                 r.data = json.dumps(data, sort_keys=True, indent=2)
-            except ValueError:
-                logger.error(u"Error parsing demping JSON data: %s" % (data))
+            except Exception as e:
+                logger.error(u"Error dumping JSON data: %s: %s" % (data, e))
             r.save()
 
 
@@ -67,8 +67,8 @@ class PlaceholderTextTest(BaseSiteTest):
             r.status = status
             try:
                 r.data = json.dumps(data, sort_keys=True, indent=2)
-            except ValueError:
-                logger.error(u"Error parsing demping JSON data: %s" % (data))
+            except Exception as e:
+                logger.error(u"Error dumping JSON data: %s: %s" % (data, e))
             r.save()
 
 
@@ -93,8 +93,8 @@ class ArticleReadTimeInfo(BaseSiteTest):
             r.status = PageTestResult.STATUS_INFO
             try:
                 r.data = json.dumps(data, sort_keys=True, indent=2)
-            except ValueError:
-                logger.error(u"Error parsing demping JSON data: %s" % (data))
+            except Exception as e:
+                logger.error(u"Error dumping JSON data: %s: %s" % (data, e))
             r.save()
 
 
@@ -119,6 +119,6 @@ class SpellCheckTest(BaseSiteTest):
             r.status = status
             try:
                 r.data = json.dumps(data, sort_keys=True, indent=2)
-            except ValueError:
-                logger.error(u"Error parsing demping JSON data: %s" % (data))
+            except Exception as e:
+                logger.error(u"Error dumping JSON data: %s: %s" % (data, e))
             r.save()
