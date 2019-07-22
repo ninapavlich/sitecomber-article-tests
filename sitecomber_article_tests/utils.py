@@ -63,7 +63,7 @@ def is_reader_view_enabled(page, settings):
                 'authors': article.authors,
                 'publish_date': article.publish_date,
                 'top_image': article.top_image,
-                'imgs': article.imgs
+                'imgs': list(article.imgs)
             }
         }
     else:
