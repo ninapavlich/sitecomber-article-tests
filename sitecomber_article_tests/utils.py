@@ -143,7 +143,7 @@ suffix_replacements = {
     'zing': ['ze', 'z']
 }
 
-prefixes = ['ante', 'anti', 'auto', 'bi', 'bis', 'co', 'de', 'dis', 'en', 'ex', 'extra', 'hyper', 'ig', 'im', 'in', 'inter', 'ir', 'macro', 'mal', 'mega', 'micro', 'mini', 'mis', 'mono', 'multi', 'non', 'omni', 'over', 'penta', 'per', 'poly', 'post', 'pre', 'pro', 'quad', 're', 'retro', 'semi', 'socio', 'sub', 'super', 'tran', 'tri', 'un', 'under', 'uni']
+prefixes = ['ante', 'anti', 'auto', 'bi', 'bis', 'co', 'de', 'dis', 'en', 'ex', 'extra', 'hyper', 'ig', 'im', 'in', 'inter', 'ir', 'macro', 'mal', 'mega', 'micro', 'mini', 'mis', 'mono', 'multi', 'neo', 'neuro', 'non', 'omni', 'over', 'penta', 'per', 'poly', 'post', 'pre', 'pro', 'quad', 're', 'retro', 'semi', 'socio', 'sub', 'super', 'tran', 'tri', 'un', 'under', 'uni']
 # Sort prefixes and suffixes from longest to shortest
 suffixes.sort(key=lambda s: len(s))
 suffixes.reverse()
@@ -314,7 +314,7 @@ def get_misspelled_words(raw_text, language, custom_known_words=[]):
     logger.debug(raw_text)
 
     # Replace fancy typigraphic characters like curly quotes and em dashes
-    typographic_translation_table = dict([(ord(x), ord(y)) for x, y in zip(u"‘’´“”–-—⁃‐…●•∙", u"'''\"\"-----.---")])
+    typographic_translation_table = dict([(ord(x), ord(y)) for x, y in zip(u"‘’´'“”–-—⁃‐…●•∙", u"''''\"\"-----.---")])
     typography_removed = raw_text.translate(typographic_translation_table)
     hyphens_removed = typography_removed.replace("-", " ").replace("/", " ")
     newlines_removed = hyphens_removed.replace("\n", " ").replace("\r", " ")
