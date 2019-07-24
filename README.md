@@ -66,11 +66,16 @@ You can provide custom words to the dictionary by specifying "known_words" in th
 ```
 
 ## Testing Instructions
-To test utility functions, run the following:
+To use test functions, run the following:
 
 ```bash
     virtualenv venv -p python3
     source venv/bin/activate
     pip install -r requirements.txt
+
+    # This will run a general unit test:
     python unit_tests.py
+
+    # This will run an interactive console to test specific words:
+    python test_word.py
 ```

@@ -35,6 +35,7 @@ modern_technical_terminology = [
     "earbud",
     "audiobook",
     "skillset",
+    "upzip",
 
     "ipad",
     "iphone",
@@ -130,9 +131,13 @@ modern_social_terminology = [
     "scattershot",
     "debuting",
     "vegan",
-    "yearslong"
+    "yearslong",
+    'keychain'
 ]
 
+alternate_spellings = [
+    'catalog'
+]
 adopted_words = [
     "reiki",
     'mâché',
@@ -159,7 +164,8 @@ adopted_words = [
     'piñata',
     'lasagna',
     'quinceañera',
+    'ganache'
 
 ]
 
-dictionary = set(words.words() + modern_technical_terminology + modern_social_terminology + adopted_words)
+core_dictionary = set(words.words() + modern_technical_terminology + modern_social_terminology + alternate_spellings + adopted_words)

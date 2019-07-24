@@ -16,7 +16,7 @@ import readtime
 
 from spellchecker import SpellChecker
 
-from .dictionary import dictionary
+from .dictionary import core_dictionary
 
 
 logger = logging.getLogger('django')
@@ -88,7 +88,7 @@ def contains_placeholder_text(page, settings):
 
     data['placeholder_words_found'] = placeholder_words_found
     if len(placeholder_words_found) > 0:
-        return True, u"Found placeholder word(s) %s" % ('", "'.join(placeholder_words_found)), data
+        return True, u"Found placeholder word(s): \"%s\"" % ('", "'.join(placeholder_words_found)), data
     else:
         message = 'No placeholder text "%s" found.' % ('", "'.join(placeholder_words))
         return False, message, data
@@ -110,9 +110,12 @@ def check_spelling(page, settings):
 
     article = get_article(page, settings)
     custom_known_words = [] if 'known_words' not in settings else settings['known_words']
+
+    dictionary = set(core_dictionary + custom_known_words)
+
     if article.text:
         raw_text = u'%s. %s' % (article.title, article.text)
-        misspelled = get_misspelled_words(raw_text, language, custom_known_words)
+        misspelled = get_misspelled_words(raw_text, language, dictionary)
         found_misspellings = len(misspelled) > 0
         message = "No misspellings found" if not found_misspellings else u'Found %s misspelling(s): "%s"' % (len(misspelled), '", "'.join(misspelled))
         return found_misspellings, message, {'misspelled_words': misspelled}
@@ -143,7 +146,7 @@ suffix_replacements = {
     'zing': ['ze', 'z']
 }
 
-prefixes = ['ante', 'anti', 'auto', 'bi', 'bis', 'co', 'de', 'dis', 'en', 'ex', 'extra', 'hyper', 'ig', 'im', 'in', 'inter', 'ir', 'macro', 'mal', 'mega', 'micro', 'mini', 'mis', 'mono', 'multi', 'neo', 'neuro', 'non', 'omni', 'over', 'penta', 'per', 'poly', 'post', 'pre', 'pro', 'quad', 're', 'retro', 'semi', 'socio', 'sub', 'super', 'tran', 'tri', 'un', 'under', 'uni']
+prefixes = ['ante', 'anti', 'auto', 'bi', 'bio', 'bis', 'co', 'de', 'dis', 'en', 'ex', 'extra', 'hyper', 'ig', 'im', 'in', 'inter', 'ir', 'macro', 'mal', 'mega', 'micro', 'mini', 'mis', 'mono', 'multi', 'neo', 'neuro', 'non', 'omni', 'over', 'penta', 'per', 'poly', 'post', 'pre', 'pro', 'quad', 're', 'retro', 'semi', 'socio', 'sub', 'super', 'tran', 'tri', 'un', 'under', 'uni']
 # Sort prefixes and suffixes from longest to shortest
 suffixes.sort(key=lambda s: len(s))
 suffixes.reverse()
@@ -156,7 +159,7 @@ lmtzr = WordNetLemmatizer()
 snowball_stemmer = SnowballStemmer("english")
 
 
-def replace_prefix(word, debug=False):
+def replace_prefix(word, dictionary, debug=False):
     log_level = logging.WARNING if debug else logging.DEBUG
     for prefix in prefixes:
         if word.startswith(prefix):
@@ -169,7 +172,7 @@ def replace_prefix(word, debug=False):
     return word
 
 
-def replace_suffix(word, debug=False):
+def replace_suffix(word, dictionary, debug=False):
     log_level = logging.WARNING if debug else logging.DEBUG
     for suffix in suffixes:
         if word.endswith(suffix):
@@ -179,7 +182,7 @@ def replace_suffix(word, debug=False):
                 logger.log(log_level, u"Removing suffix '%s' from word %s: %s --> %s" % (suffix, word, word_updated, (word_updated in dictionary)))
                 return word_updated
 
-            prefix_replaced = replace_prefix(word_updated, debug)
+            prefix_replaced = replace_prefix(word_updated, dictionary, debug)
             if prefix_replaced in dictionary:
                 logger.log(log_level, u"Removing suffix '%s' and prefix from word %s: %s --> %s" % (suffix, word, prefix_replaced, (prefix_replaced in dictionary)))
                 return prefix_replaced
@@ -193,7 +196,7 @@ def replace_suffix(word, debug=False):
                         logger.log(log_level, u"Removing suffix '%s' from word %s: %s --> %s" % (suffix, word, replaced, (replaced in dictionary)))
                         return replaced
 
-                    prefix_replaced = replace_prefix(replaced, debug)
+                    prefix_replaced = replace_prefix(replaced, dictionary, debug)
                     if prefix_replaced in dictionary:
                         logger.log(log_level, u"Removing suffix '%s' and prefix from word %s: %s --> %s" % (suffix, word, prefix_replaced, (prefix_replaced in dictionary)))
                         return prefix_replaced
@@ -201,7 +204,7 @@ def replace_suffix(word, debug=False):
     return word
 
 
-def simplify_word(word, debug=False):
+def simplify_word(word, dictionary, debug=False):
     log_level = logging.WARNING if debug else logging.DEBUG
 
     original_word = word
@@ -212,12 +215,12 @@ def simplify_word(word, debug=False):
         logger.log(log_level, "Simple singularization returns valid word %s" % (word[0:-1]))
         return word[0:-1]
 
-    word = replace_suffix(word, debug)
+    word = replace_suffix(word, dictionary, debug)
     if word in dictionary:
         logger.log(log_level, "First round suffix replaced to get valid word %s" % (word))
         return word
 
-    word = replace_prefix(word, debug)
+    word = replace_prefix(word, dictionary, debug)
     if word in dictionary:
         logger.log(log_level, "First round prefix replaced to get valid word %s" % (word))
         return word
@@ -229,12 +232,12 @@ def simplify_word(word, debug=False):
             logger.log(log_level, "Second round singularization replaced to get valid word %s" % (word))
             return word
 
-    word = replace_suffix(word, debug)
+    word = replace_suffix(word, dictionary, debug)
     if word in dictionary:
         logger.log(log_level, "Second round suffix replaced to get valid word %s" % (word))
         return word
 
-    word = replace_prefix(word, debug)
+    word = replace_prefix(word, dictionary, debug)
     if word in dictionary:
         logger.log(log_level, "Second round prefix replaced to get valid word %s" % (word))
         return word
@@ -246,12 +249,12 @@ def simplify_word(word, debug=False):
             logger.log(log_level, "Third round singularization replaced to get valid word %s" % (word))
             return word
 
-    word = replace_suffix(word, debug)
+    word = replace_suffix(word, dictionary, debug)
     if word in dictionary:
         logger.log(log_level, "Third round suffix replaced to get valid word %s" % (word))
         return word
 
-    word = replace_prefix(word, debug)
+    word = replace_prefix(word, dictionary, debug)
     if word in dictionary:
         logger.log(log_level, "Third round prefix replaced to get valid word %s" % (word))
         return word
@@ -273,12 +276,12 @@ def simplify_word(word, debug=False):
         logger.log(log_level, "Simple singularization returns valid word %s" % (word[0:-1]))
         return word[0:-1]
 
-    word = replace_prefix(word, debug)
+    word = replace_prefix(word, dictionary, debug)
     if word in dictionary:
         logger.log(log_level, "Fourth round prefix replaced to get valid word %s" % (word))
         return word
 
-    word = replace_suffix(word, debug)
+    word = replace_suffix(word, dictionary, debug)
     if word in dictionary:
         logger.log(log_level, "Fourth round suffix replaced to get valid word %s" % (word))
         return word
@@ -290,12 +293,12 @@ def simplify_word(word, debug=False):
             logger.log(log_level, "Fifth round singularization replaced to get valid word %s" % (word))
             return word
 
-    word = replace_suffix(word, debug)
+    word = replace_suffix(word, dictionary, debug)
     if word in dictionary:
         logger.log(log_level, "Fifth round suffix replaced to get valid word %s" % (word))
         return word
 
-    word = replace_prefix(word, debug)
+    word = replace_prefix(word, dictionary, debug)
     if word in dictionary:
         logger.log(log_level, "Fifth round prefix replaced to get valid word %s" % (word))
         return word
@@ -304,7 +307,7 @@ def simplify_word(word, debug=False):
     return original_word
 
 
-def get_misspelled_words(raw_text, language, custom_known_words=[]):
+def get_misspelled_words(raw_text, language, dictionary):
 
     # if language != 'en':
     #     return True, 'Language "%s" not supported' % (language)
@@ -313,19 +316,19 @@ def get_misspelled_words(raw_text, language, custom_known_words=[]):
     logger.debug("raw_text:")
     logger.debug(raw_text)
 
+    # Remove email addresses, hashes, urls, phone numbers...
+    emails_removed = re.sub(r"\S*@\S*\s?", "", raw_text)
+    hashes_removed = re.sub(r"#(\w+)", "", emails_removed)
+    phonenumbers_removed = re.sub(r"(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})", "", hashes_removed)
+    full_urls_removed = re.sub(r'\s*(?:https?://)?\S*\.[A-Za-z]{2,5}\s*', '', phonenumbers_removed)
+
     # Replace fancy typigraphic characters like curly quotes and em dashes
     typographic_translation_table = dict([(ord(x), ord(y)) for x, y in zip(u"‘’´'“”–-—⁃‐…●•∙", u"''''\"\"-----.---")])
-    typography_removed = raw_text.translate(typographic_translation_table)
+    typography_removed = full_urls_removed.translate(typographic_translation_table)
     hyphens_removed = typography_removed.replace("-", " ").replace("/", " ")
     newlines_removed = hyphens_removed.replace("\n", " ").replace("\r", " ")
 
-    # Remove email addresses, hashes, urls, phone numbers...
-    emails_removed = re.sub(r"\S*@\S*\s?", "", newlines_removed)
-    hashes_removed = re.sub(r"#(\w+)", "", emails_removed)
-    phonenumbers_removed = re.sub(r"(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})", "", hashes_removed)
-    urls_removed = re.sub(r"([\w\.]+\.(?:com|org|net|us|co|edu|gov|uk)[^,\s]*)", "", phonenumbers_removed)
-
-    contractions_removed = contractions.fix(urls_removed)
+    contractions_removed = contractions.fix(newlines_removed)
     possessives_removed = re.sub("\'s ", " ", contractions_removed)
     hyphens_removed = possessives_removed.replace("-", " ")
     acronyms_removed = re.sub(r"\b[A-Z\.]{2,}s?\b", "", hyphens_removed)
@@ -364,10 +367,8 @@ def get_misspelled_words(raw_text, language, custom_known_words=[]):
 
     remove_empty_words = [word for word in punctuation_removed if word]
 
-    remove_custom_words = [word for word in remove_empty_words if (word not in custom_known_words)]
-
     # Remove anything matching a proper noun from above
-    remove_proper_nounds = [item for item in remove_custom_words if item.lower() not in proper_nouns_lower]
+    remove_proper_nounds = [item for item in remove_empty_words if item.lower() not in proper_nouns_lower]
 
     # Reduce to unique set of words
     check_words = list(set(remove_proper_nounds))
@@ -387,7 +388,7 @@ def get_misspelled_words(raw_text, language, custom_known_words=[]):
     # TODO -- words like 'cartoonish' are getting flagged
     misspelled = []
     for word in unknown:
-        simplified_word = simplify_word(word)
+        simplified_word = simplify_word(word, dictionary)
         if simplified_word not in dictionary:
             misspelled.append(simplified_word)
 
