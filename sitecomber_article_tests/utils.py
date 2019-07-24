@@ -307,36 +307,73 @@ def simplify_word(word, dictionary, debug=False):
     return original_word
 
 
-def get_misspelled_words(raw_text, language, dictionary):
+def remove_emails(input):
+    return re.sub(r"\S*@\S*\s?", " ", input)
+
+
+def remove_hashes(input):
+    return re.sub(r"#(\w+)", " ", input)
+
+
+def remove_phonenumbers(input):
+    intl_removed = re.sub(r'(\+[0-9]+\s*)?(\([0-9]+\))?[\s0-9\-]+[0-9]+', ' ', input)
+    us_removed = re.sub(r"(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})", " ", intl_removed)
+
+    return us_removed
+
+
+def remove_urls(input):
+    # return re.sub(r'\s*(?:https?://)?\S*\.[A-Za-z]{2,5}\s*', " ", input)
+    removed_full_links = re.sub(r'(http|https|ftp|telnet):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?', " ", input)
+    remove_partial_links = re.sub(r"([\w\.]+\.(?:com|org|net|us|co|edu|gov|uk)[^,\s]*)", " ", removed_full_links)
+    remove_mailtos = re.sub(r'((mailto\:|(news|(ht|f)tp(s?))\://){1}\S+)', " ", remove_partial_links)
+    ips_removed = re.sub(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", " ", remove_mailtos)
+    intl_removed = re.sub(r'(tel):(\+[0-9]+\s*)?(\([0-9]+\))?[\s0-9\-]+[0-9]+', ' ', ips_removed)
+    us_removed = re.sub(r"(tel):(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})", " ", intl_removed)
+    filenames_removed = re.sub(r"([\w\d\-.]+\.(pdf|PDF|doc|DOC|docx|DOCX|zip|ZIP|xlsx|XLSX|csv|CSV))", " ", us_removed)
+    return filenames_removed
+
+
+def remove_acronyms(input):
+    return re.sub(r"\b[A-Z\.]{2,}s?\b", "", input)
+
+
+def get_misspelled_words(raw_text, language, dictionary, debug=False):
+    log_level = logging.WARNING if debug else logging.DEBUG
 
     # if language != 'en':
     #     return True, 'Language "%s" not supported' % (language)
     spell = SpellChecker(language=language, distance=1)
 
-    logger.debug("raw_text:")
-    logger.debug(raw_text)
+    logger.log(log_level, ">> raw_text:")
+    logger.log(log_level, raw_text)
 
     # Remove email addresses, hashes, urls, phone numbers...
-    emails_removed = re.sub(r"\S*@\S*\s?", "", raw_text)
-    hashes_removed = re.sub(r"#(\w+)", "", emails_removed)
-    phonenumbers_removed = re.sub(r"(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})", "", hashes_removed)
-    full_urls_removed = re.sub(r'\s*(?:https?://)?\S*\.[A-Za-z]{2,5}\s*', '', phonenumbers_removed)
+    urls_removed = remove_urls(raw_text)
+    emails_removed = remove_emails(urls_removed)
+    hashes_removed = remove_hashes(emails_removed)
+    phonenumbers_removed = remove_phonenumbers(hashes_removed)
+
+    logger.log(log_level, ">> after email, hashes, urls, phone numbers removed:")
+    logger.log(log_level, phonenumbers_removed)
 
     # Replace fancy typigraphic characters like curly quotes and em dashes
     typographic_translation_table = dict([(ord(x), ord(y)) for x, y in zip(u"‘’´'“”–-—⁃‐…●•∙", u"''''\"\"-----.---")])
-    typography_removed = full_urls_removed.translate(typographic_translation_table)
+    typography_removed = phonenumbers_removed.translate(typographic_translation_table)
     hyphens_removed = typography_removed.replace("-", " ").replace("/", " ")
     newlines_removed = hyphens_removed.replace("\n", " ").replace("\r", " ")
+
+    logger.log(log_level, ">> after fancy typographic characters and newlines removed:")
+    logger.log(log_level, newlines_removed)
 
     contractions_removed = contractions.fix(newlines_removed)
     possessives_removed = re.sub("\'s ", " ", contractions_removed)
     hyphens_removed = possessives_removed.replace("-", " ")
-    acronyms_removed = re.sub(r"\b[A-Z\.]{2,}s?\b", "", hyphens_removed)
-
+    acronyms_removed = remove_acronyms(hyphens_removed)
     whitespace_condensed = re.sub("[ \t]+", " ", acronyms_removed.replace(u'\u200b', ' '))
 
-    # logger.info("whitespace_condensed:")
-    # logger.info(whitespace_condensed)
+    logger.log(log_level, ">> after contractions, posessives, hyphens and acronyms removed:")
+    logger.log(log_level, whitespace_condensed)
 
     tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 
@@ -392,7 +429,7 @@ def get_misspelled_words(raw_text, language, dictionary):
         if simplified_word not in dictionary:
             misspelled.append(simplified_word)
 
-    logger.debug("misspelled:")
-    logger.debug(misspelled)
+    logger.log(log_level, ">> misspelled:")
+    logger.log(log_level, misspelled)
 
     return misspelled
