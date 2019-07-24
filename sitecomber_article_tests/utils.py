@@ -111,7 +111,7 @@ def check_spelling(page, settings):
     article = get_article(page, settings)
     custom_known_words = [] if 'known_words' not in settings else settings['known_words']
 
-    dictionary = set(core_dictionary + custom_known_words)
+    dictionary = set(list(core_dictionary) + list(custom_known_words))
 
     if article.text:
         raw_text = u'%s. %s' % (article.title, article.text)
