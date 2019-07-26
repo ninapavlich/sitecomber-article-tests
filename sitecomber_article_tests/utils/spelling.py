@@ -1,11 +1,9 @@
 import logging
 import re
 from string import punctuation
+import unicodedata
 
-import nltk.data
 from nltk.corpus import stopwords
-# from nltk.stem.wordnet import WordNetLemmatizer
-# from nltk.stem import SnowballStemmer
 
 import contractions
 
@@ -42,10 +40,15 @@ suffixes = [
     {'al': ''},
     {'ance': ''},
     {'ate': ''},
+    {'bed': ''},
     {'bility': ''},
     {'bility': 'ble'},
     {'bio': ''},
     {'dom': ''},
+    {'cced': 'c'},
+    {'ccing': 'c'},
+    {'dded': 'd'},
+    {'dding': 'd'},
     {'ed': ''},
     {'ed': 'e'},
     {'ee': ''},
@@ -60,8 +63,12 @@ suffixes = [
     {'es': 'e'},
     {'esque': ''},
     {'est': ''},
+    {'ffed': 'f'},
+    {'ffing': 'f'},
     {'ful': ''},
     {'fy': ''},
+    {'gged': 'g'},
+    {'gging': 'g'},
     {'hood': ''},
     {'ible': ''},
     {'ic': ''},
@@ -90,31 +97,49 @@ suffixes = [
     {'ive': ''},
     {'ize': ''},
     {'izer': ''},
+    {'jjed': 'j'},
+    {'jjing': 'j'},
+    {'kked': 'k'},
+    {'kking': 'k'},
     {'less': ''},
     {'like': ''},
+    {'lled': 'l'},
+    {'lling': 'l'},
     {'long': ''},
     {'ly': ''},
     {'mate': ''},
     {'ment': ''},
+    {'mmed': 'm'},
+    {'mming': 'm'},
     {'ness': ''},
+    {'nned': 'n'},
+    {'nning': 'n'},
     {'ologist': ''},
     {'ologist': 'ology'},
     {'ous': ''},
     {'ped': ''},
-    {'pping': ''},
+    {'pped': 'p'},
     {'pping': 'p'},
+    {'qqed': 'q'},
+    {'qqing': 'q'},
     {'red': ''},
     {'red': 're'},
+    {'rred': 'r'},
+    {'rring': 'r'},
     {'s': ''},
     {'sion': ''},
+    {'ssed': 's'},
+    {'ssing': 's'},
     {'tion': ''},
     {'tion': 'te'},
     {'tize': ''},
     {'tize': 'ty'},
     {'tize': 't'},
-    {'tted': ''},
     {'tted': 't'},
+    {'tting': 't'},
     {'ty': ''},
+    {'vved': 'v'},
+    {'vving': 'v'},
     {'ward': ''},
     {'wards': ''},
     {'wide': ''},
@@ -290,6 +315,10 @@ def remove_acronyms(input):
     return re.sub(r"\b[A-Z\.]{2,}s?\b", "", input)
 
 
+def remove_direct_quotation_brackets(input):
+    return input.replace("[", "").replace("]", "")
+
+
 def get_misspelled_words(raw_text, language, dictionary, debug=False):
     log_level = logging.WARNING if debug else logging.DEBUG
 
@@ -338,10 +367,10 @@ def get_misspelled_words(raw_text, language, dictionary, debug=False):
     logger.log(log_level, stopwords_removed)
 
     # Remove any numbers and punctuation
-
-    # This excludes a word with a number anywhere in it:
-    # punctuation_removed = [word.strip(punctuation) for word in stopwords_removed if (word and not re.search('\d+', word))]
-    punctuation_removed = [word.strip(punctuation) for word in stopwords_removed if (word and not word[0].isdigit())]
+    normalzized_words = [unicodedata.normalize('NFKC', word) for word in stopwords_removed]
+    punctuation_removed = [remove_direct_quotation_brackets(word.strip(punctuation)) for word in normalzized_words if (word and not word[0].isdigit())]
+    # Apply twice in case there is punctuation around digits
+    punctuation_removed = [remove_direct_quotation_brackets(word.strip(punctuation)) for word in punctuation_removed if (word and not word[0].isdigit())]
 
     logger.log(log_level, ">> punctuation_removed:")
     logger.log(log_level, punctuation_removed)
