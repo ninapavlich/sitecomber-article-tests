@@ -3,8 +3,8 @@ import json
 
 from sitecomber.apps.shared.interfaces import BaseSiteTest
 
-from utils.article import is_reader_view_enabled, contains_placeholder_text, get_article_readtime
-from utils.spelling import check_spelling
+from .utils.article import is_reader_view_enabled, contains_placeholder_text, get_article_readtime
+from .utils.spelling import check_spelling
 
 logger = logging.getLogger('django')
 
