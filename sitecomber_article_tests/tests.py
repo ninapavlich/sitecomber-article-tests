@@ -23,12 +23,18 @@ def should_test_page(page):
 
 class ReaderViewTest(BaseSiteTest):
     """
-    Determins if the page has a structured article (with a title, body text,
-    author, main image and publication date) and is therefore optimized for
-    reader viewers such as Pocket, Instapaper or browser reader view.
-    This test uses the Python library Newspaper3k (https://github.com/codelucas/newspaper/)
-    to extract the article content.
+    Determins if the page has a structured article
+    Uses library https://github.com/codelucas/newspaper/
     """
+
+    def get_description_html(self):
+
+        return """<p>Determins if the page has a structured article (with a title, body text,
+    author, main image and publication date) and is therefore optimized for
+    reader viewers such as Pocket, Instapaper or browser reader view.</p>
+    <p>This test uses the Python library <a href="https://github.com/codelucas/newspaper/">Newspaper3k</a>
+    to extract the article content.</p>
+        """
 
     def on_page_parsed(self, page):
         from sitecomber.apps.results.models import PageTestResult
@@ -61,8 +67,7 @@ class PlaceholderTextTest(BaseSiteTest):
 
     def get_description_html(self):
 
-        return """"
-            <p>This test looks for the placeholder text \"%s\" in the main article body or title. </p>
+        return """<p>This test looks for the placeholder words \"%s\" in the main article body or title. </p>
             <small>To adjust which words are searched for, go to the Site configuration
             settings and scroll down to the "PlaceholderTextTest" section.
             Custom words should be entered as a JSON list, in this format:
@@ -75,7 +80,7 @@ class PlaceholderTextTest(BaseSiteTest):
                 ]
               }
             </pre></small></p>
-        """ % (self.placeholder_words)
+        """ % ('", "'.join(self.placeholder_words))
 
     def on_page_parsed(self, page):
         from sitecomber.apps.results.models import PageTestResult
@@ -100,9 +105,15 @@ class PlaceholderTextTest(BaseSiteTest):
 
 class ArticleReadTimeInfo(BaseSiteTest):
     """
-    This test returns approximate read time based on Medium's read time forumula.
-    See the library https://github.com/alanhamlett/readtime for more details.
+    Determines approximate read time based on library
+    https://github.com/alanhamlett/readtime
     """
+
+    def get_description_html(self):
+
+        return """<p>This test returns approximate read time based on <a href="https://help.medium.com/hc/en-us/articles/214991667-Read-time">Medium's read time forumula</a> of roughly 265 WPM.</p>
+    <p>See the <a href="https://github.com/alanhamlett/readtime">readtime library</a> for more details.</p>
+        """
 
     def on_page_parsed(self, page):
         from sitecomber.apps.results.models import PageTestResult
@@ -132,8 +143,8 @@ class SpellCheckTest(BaseSiteTest):
 
     def get_description_html(self):
 
-        return """"
-            <p>This test checks spelling in the main article body or title</p>
+        return """
+            <p>This test checks spelling in the main article title and body text.</p>
 
             <p><small>If a word is caught that shouldn't be, it may be that this
             word is simply not in the Python NLTK corpus dictionary.</small></p>
