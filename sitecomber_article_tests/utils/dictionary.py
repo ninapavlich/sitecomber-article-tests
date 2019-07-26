@@ -1,6 +1,6 @@
 from nltk.corpus import words
 
-
+valid_one_letter_words = ['a', 'i', 'o']
 modern_technical_terminology = [
     "blog",
     "blogger",
@@ -52,6 +52,7 @@ modern_social_terminology = [
     "who'd",
     "mom",
     "dad",
+    "grandkid",
     "timeout",
     "bandana",
     "transgender",
@@ -132,12 +133,21 @@ modern_social_terminology = [
     "debuting",
     "vegan",
     "yearslong",
-    'keychain'
+    'keychain',
+    'laundromat',
+    'antsy',
+    'foodborne',
+    'blindside',
+    'sheetcake',
+    'meh',
+    'sleepover'
 ]
 
 alternate_spellings = [
     'catalog'
 ]
+
+# TODO -- flesh out loan words more completely
 adopted_words = [
     "reiki",
     'mâché',
@@ -147,7 +157,7 @@ adopted_words = [
     'quesadilla',
     'mitzvah',
     'naïve',
-    'fiancée'
+    'fiancée',
     'à',
     'latte',
     'blasé',
@@ -164,8 +174,13 @@ adopted_words = [
     'piñata',
     'lasagna',
     'quinceañera',
-    'ganache'
+    'ganache',
+    'carpaccio',
+    'passé',
+    'macadamia',
+    'rosé',
+    'bratwurst'
 
 ]
 
-core_dictionary = set(words.words() + modern_technical_terminology + modern_social_terminology + alternate_spellings + adopted_words)
+extended_dictionary = set(words.words() + modern_technical_terminology + modern_social_terminology + alternate_spellings + adopted_words)
