@@ -10,13 +10,11 @@ logger = logging.getLogger('django')
 
 
 def should_test_page(page):
-    if not page.latest_request:
+    if not page.last_status_code:
         return False
     if not page.is_internal:
         return False
-    if not page.latest_request.response:
-        return False
-    if 'text/html' not in page.latest_request.response.content_type.lower():
+    if page.last_content_type and 'text/html' not in page.last_content_type.lower():
         return False
     return True
 

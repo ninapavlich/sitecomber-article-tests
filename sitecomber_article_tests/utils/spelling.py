@@ -7,7 +7,7 @@ from nltk.corpus import stopwords
 
 import contractions
 
-from spellchecker import SpellChecker
+# from spellchecker import SpellChecker
 
 from .article import get_article
 from .dictionary import get_extended_dictionary
@@ -320,7 +320,6 @@ def get_misspelled_words(raw_text, language, dictionary, debug=False):
 
     # if language != 'en':
     #     return True, 'Language "%s" not supported' % (language)
-    spell = SpellChecker(language=language, distance=1)
 
     logger.log(log_level, ">> raw_text:")
     logger.log(log_level, raw_text)
@@ -398,13 +397,14 @@ def get_misspelled_words(raw_text, language, dictionary, debug=False):
     logger.log(log_level, words_not_in_dict)
 
     # Next use spelling library
-    unknown = [item for item in list(spell.unknown(words_not_in_dict))]
-    logger.log(log_level, ">> unknown:")
-    logger.log(log_level, unknown)
+    # spell = SpellChecker(language=language, distance=1)
+    # unknown = [item for item in list(spell.unknown(words_not_in_dict))]
+    # logger.log(log_level, ">> unknown:")
+    # logger.log(log_level, unknown)
 
     # Finally, removing prefix and suffixes to unearth a valid root word
     misspelled = []
-    for word in unknown:
+    for word in words_not_in_dict:
         simplified_word = simplify_word(word, dictionary)
         if not is_in_dictionary(simplified_word, dictionary):
             misspelled.append(simplified_word)
