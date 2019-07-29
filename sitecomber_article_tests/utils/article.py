@@ -12,7 +12,7 @@ logger = logging.getLogger('django')
 
 def get_article(page, settings):
     url = page.url
-    html = page.latest_request.response.text_content
+    html = page.last_text_content
 
     language = 'en' if 'lang' not in settings else settings['lang']
     if language not in get_available_languages():

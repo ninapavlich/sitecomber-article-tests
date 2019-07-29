@@ -1,6 +1,6 @@
 from ..utils.spelling import remove_emails, remove_hashes, remove_phonenumbers, \
     remove_urls, get_misspelled_words, simplify_word
-from ..utils.dictionary import extended_dictionary
+from ..utils.dictionary import get_extended_dictionary
 
 
 def test():
@@ -87,6 +87,7 @@ URL with query:
 
     # words_to_simplify = ['tantrumming']
     # expected_output = ['tantrum']
+    extended_dictionary = get_extended_dictionary()
 
     output = []
     for word in words_to_simplify:
