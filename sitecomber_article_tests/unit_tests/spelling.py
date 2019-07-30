@@ -107,7 +107,7 @@ Acronym test: ABCD, A.B.C.D, and even A.B.C.Ds.
 Fancy typography test: This is a sentence with fancy curly quotes,” it’s great to have fancy typography like ‘single quotes’ ´back ticks various dashes –-—⁃ ellipses … and fancy bullets •∙ ©
 Direct Quote test: she was "fall[ing] down the stairs" “It [driving] imposes a heavy procedural workload on cognition that . . . leaves little processing capacity available for other tasks” (Salvucci and Taatgen 107). [1] Salvucci and Taatgen propose that “[t]he heavy cognitive workload of driving suggests that any secondary task has the potential to affect driver behavior” (108).
 
-What's up with these apostrophes? half's baby's today's
+What's up with these apostrophes? half's baby's today's women’s else’s today’s
 
 Email test: abc user@xxx.com 123 any@www foo @ bar 78@ppp @5555 aa@111 testing @MyFancyHandle
 
@@ -147,7 +147,7 @@ Loan Words (german) : angst blitz blitzkrieg bratwurst cobalt concertmaster
 dachshund gauss deli delicatessen pinscher doppelgänger doppelganger doppler
 ersatz fahrenheit fest flak flack frankfurter
 
-TODO -- complete loan word list spanish, french, yiddish, etc
+TODO -- complete loan word list spanish, french, yiddish, etc à française
 """
 
     print("Getting misspelled words - round 1...")

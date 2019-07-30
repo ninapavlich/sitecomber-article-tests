@@ -10,7 +10,7 @@ import contractions
 from spellchecker import SpellChecker
 
 from .article import get_article
-from .dictionary import get_extended_dictionary
+from .dictionary import get_extended_dictionary, valid_one_letter_words
 
 
 logger = logging.getLogger('django')
@@ -37,7 +37,7 @@ def check_spelling(page, settings):
 
 def is_in_dictionary(word, dictionary):
     if len(word) == 1:
-        if word.lower() == 'a' or word.lower() == 'i' or word.lower() == 'o':
+        if word.lower() in valid_one_letter_words:
             return True
     else:
         return (word in dictionary)
@@ -47,6 +47,7 @@ def get_simplification_options(word):
     suffixes = [
         {'able': ''},
         {'acy': ''},
+        {'ant': ''},
         {'al': ''},
         {'ance': ''},
         {'ate': ''},
@@ -56,8 +57,10 @@ def get_simplification_options(word):
         {'bio': ''},
         {'dom': ''},
         {'cced': 'c'},
+        {'cces': 'c'},
         {'ccing': 'c'},
         {'dded': 'd'},
+        {'ddes': 'd'},
         {'dding': 'd'},
         {'ed': ''},
         {'ed': 'e'},
@@ -66,6 +69,7 @@ def get_simplification_options(word):
         {'en': 'e'},
         {'ence': ''},
         {'ence': 'e'},
+        {'ent': ''},
         {'er': ''},
         {'er': 'e'},
         {'erizer': ''},
@@ -74,10 +78,12 @@ def get_simplification_options(word):
         {'esque': ''},
         {'est': ''},
         {'ffed': 'f'},
+        {'ffes': 'f'},
         {'ffing': 'f'},
         {'ful': ''},
         {'fy': ''},
         {'gged': 'g'},
+        {'gges': 'g'},
         {'gging': 'g'},
         {'hood': ''},
         {'ible': ''},
@@ -108,37 +114,46 @@ def get_simplification_options(word):
         {'ize': ''},
         {'izer': ''},
         {'jjed': 'j'},
+        {'jjes': 'j'},
         {'jjing': 'j'},
         {'kked': 'k'},
+        {'kkes': 'k'},
         {'kking': 'k'},
         {'less': ''},
         {'like': ''},
         {'lled': 'l'},
+        {'lles': 'l'},
         {'lling': 'l'},
         {'long': ''},
         {'ly': ''},
         {'mate': ''},
         {'ment': ''},
         {'mmed': 'm'},
+        {'mmes': 'm'},
         {'mming': 'm'},
         {'ness': ''},
         {'nned': 'n'},
+        {'nnes': 'n'},
         {'nning': 'n'},
         {'ologist': ''},
         {'ologist': 'ology'},
         {'ous': ''},
         {'ped': ''},
         {'pped': 'p'},
+        {'ppes': 'p'},
         {'pping': 'p'},
         {'qqed': 'q'},
+        {'qqes': 'q'},
         {'qqing': 'q'},
         {'red': ''},
         {'red': 're'},
         {'rred': 'r'},
+        {'rres': 'r'},
         {'rring': 'r'},
         {'s': ''},
         {'sion': ''},
         {'ssed': 's'},
+        {'sses': 's'},
         {'ssing': 's'},
         {'tion': ''},
         {'tion': 'te'},
@@ -146,16 +161,21 @@ def get_simplification_options(word):
         {'tize': 'ty'},
         {'tize': 't'},
         {'tted': 't'},
+        {'ttes': 't'},
         {'tting': 't'},
         {'ty': ''},
         {'vved': 'v'},
+        {'vves': 'v'},
         {'vving': 'v'},
         {'ward': ''},
         {'wards': ''},
         {'wide': ''},
         {'wise': ''},
         {'worthy': ''},
-        {'y': ''}
+        {'y': ''},
+        {'zzed': 'z'},
+        {'zzes': 'z'},
+        {'zzing': 'z'},
     ]
 
     prefixes = [

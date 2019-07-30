@@ -1,6 +1,6 @@
 from nltk.corpus import words
 
-valid_one_letter_words = ['a', 'i', 'o']
+valid_one_letter_words = ['a', 'à', 'i', 'o']
 
 
 def get_extended_dictionary():
@@ -152,6 +152,8 @@ def get_extended_dictionary():
 
     # TODO -- flesh out loan words more completely
     adopted_words = [
+        "à",
+        "française",
         "reiki",
         'mâché',
         'guac',
@@ -161,7 +163,6 @@ def get_extended_dictionary():
         'mitzvah',
         'naïve',
         'fiancée',
-        'à',
         'latte',
         'blasé',
         'purée',
