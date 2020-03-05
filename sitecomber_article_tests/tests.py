@@ -5,6 +5,7 @@ from sitecomber.apps.shared.interfaces import BaseSiteTest
 
 from .utils.article import is_reader_view_enabled, contains_placeholder_text, get_article_readtime
 from .utils.spelling import check_spelling
+from .utils.seo import has_meta_tags
 
 logger = logging.getLogger('django')
 
@@ -21,13 +22,13 @@ def should_test_page(page):
 
 class ReaderViewTest(BaseSiteTest):
     """
-    Determins if the page has a structured article
+    Determines if the page has a structured article
     Uses library https://github.com/codelucas/newspaper/
     """
 
     def get_description_html(self):
 
-        return """<p>Determins if the page has a structured article (with a title, body text,
+        return """<p>Determines if the page has a structured article (with a title, body text,
     author, main image and publication date) and is therefore optimized for
     reader viewers such as Pocket, Instapaper or browser reader view.</p>
     <p>This test uses the Python library <a href="https://github.com/codelucas/newspaper/">Newspaper3k</a>
@@ -167,6 +168,47 @@ class SpellCheckTest(BaseSiteTest):
 
             contains_misspellings, message, data = check_spelling(page, self.settings)
             status = PageTestResult.STATUS_SUCCESS if not contains_misspellings else PageTestResult.STATUS_ERROR
+
+            r, created = PageTestResult.objects.get_or_create(
+                page=page,
+                test=self.class_path
+            )
+            r.message = message
+            r.status = status
+            try:
+                r.data = json.dumps(data, sort_keys=True, indent=2)
+            except Exception as e:
+                logger.error(u"Error dumping JSON data: %s: %s" % (data, e))
+            r.save()
+
+
+
+class SEOMetaTagsTest(BaseSiteTest):
+    """
+    Determines if the page has the recommended meta tags:
+    Content-Type, Title, Desciption, and Viewport
+
+    Also checks neutral tags:
+    Social meta tags, Robots, language, geo, keywords
+
+    Follows https://moz.com/blog/the-ultimate-guide-to-seo-meta-tags
+    """
+
+    def get_description_html(self):
+
+        return """<p>Determines if the page has the recommended meta tags:
+Content-Type, Title, Description and Viewport. It also tracks other records
+Social meta tags, robots, language, geo and keywords for reference, though these
+do not affect whether the test is passing or failing.</p>
+<p>This test follows recommendations by <a href="https://moz.com/blog/the-ultimate-guide-to-seo-meta-tags">Moz.com</a></p>
+        """
+
+    def on_page_parsed(self, page):
+        from sitecomber.apps.results.models import PageTestResult
+
+        if should_test_page(page):
+
+            has_required_meta_tags, status, message, data = has_meta_tags(page, self.settings)
 
             r, created = PageTestResult.objects.get_or_create(
                 page=page,
