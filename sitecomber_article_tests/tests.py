@@ -5,7 +5,7 @@ from sitecomber.apps.shared.interfaces import BaseSiteTest
 
 from .utils.article import is_reader_view_enabled, contains_placeholder_text, get_article_readtime
 from .utils.spelling import check_spelling
-from .utils.seo import has_meta_tags
+from .utils.seo import has_meta_tags, has_socialmedia_tags
 
 logger = logging.getLogger('django')
 
@@ -209,6 +209,37 @@ do not affect whether the test is passing or failing.</p>
         if should_test_page(page):
 
             has_required_meta_tags, status, message, data = has_meta_tags(page, self.settings)
+
+            r, created = PageTestResult.objects.get_or_create(
+                page=page,
+                test=self.class_path
+            )
+            r.message = message
+            r.status = status
+            try:
+                r.data = json.dumps(data, sort_keys=True, indent=2)
+            except Exception as e:
+                logger.error(u"Error dumping JSON data: %s: %s" % (data, e))
+            r.save()
+
+class SocialMetaTagsTest(BaseSiteTest):
+    """
+    Determines if the page has the recommended social meta tags per
+    https://moz.com/blog/meta-data-templates-123
+    """
+
+    def get_description_html(self):
+
+        return """<p>Determines if the page has the recommended social meta
+tags per <a href="https://moz.com/blog/meta-data-templates-123">Moz.com</a></p>
+        """
+
+    def on_page_parsed(self, page):
+        from sitecomber.apps.results.models import PageTestResult
+
+        if should_test_page(page):
+
+            has_social_tags, status, message, data = has_socialmedia_tags(page, self.settings)
 
             r, created = PageTestResult.objects.get_or_create(
                 page=page,
