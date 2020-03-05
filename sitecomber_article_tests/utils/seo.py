@@ -53,19 +53,15 @@ def has_meta_tags(page, settings):
         if len(description) > 155:
             messages.append(u"WARNING: Description length should be no more than 155 characters, currently it is %s." % (len(description)))
             status = "warning"
-
-
-        data = {
-            'tags': {
-                'contentType': contentType,
-                'title': title,
-                'description': description,
-                'viewport': viewport,
-
-            }
-        }
     else:
         status = "error"
+
+    data = {
+        'contentType': contentType,
+        'title': title,
+        'description': description,
+        'viewport': viewport,
+    }
 
     message = u" ".join(messages)
     return meta_tags_correct, status, message, data
