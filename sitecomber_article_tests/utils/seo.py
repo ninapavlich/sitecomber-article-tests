@@ -125,7 +125,7 @@ def has_socialmedia_tags(page, settings):
             social_tags_correct = False
             status = "error"
             tagKey = next(iter(tagAttrs))
-            tagAttrFormatted = "%s__%s"%(tagKey, tagAttrs[tagKey])
+            tagAttrFormatted = "%s__%s"%(tagKey, tagAttrs[tagKey].replace(':', ''))
             messages.append(u"Recommended social meta tag %s was not found." % (tagAttrFormatted))
     if social_tags_correct:
         messages.append(u"All recommended social meta tags were found.")
@@ -144,7 +144,7 @@ def has_socialmedia_tags(page, settings):
 
     for tagAttrs in all_tags:
         tagKey = next(iter(tagAttrs))
-        tagAttrFormatted = "%s__%s"%(tagKey, tagAttrs[tagKey])
+        tagAttrFormatted = "%s__%s"%(tagKey, tagAttrs[tagKey].replace(':', ''))
         foundTag = soup.find('meta', attrs=tagAttrs)
         foundTagContent = None if not foundTag else foundTag["content"]
         data[tagAttrFormatted] = foundTagContent
