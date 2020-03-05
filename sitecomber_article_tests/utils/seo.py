@@ -24,27 +24,33 @@ def has_meta_tags(page, settings):
         or soup.find('meta', attrs={'http-equiv': 'content-type'})
     contentType = None if not contentTypeTag else contentTypeTag["content"]
     if not contentType:
+        status = "warning"
         messages.append(u"Page is missing the recommended Content-Type meta tag.")
+
+    viewportTag = soup.find('meta', attrs={'name': 'viewport'})
+    viewport = None if not viewportTag else viewportTag["content"]
+    if not viewport:
+        status = "warning"
+        messages.append(u"Page is missing the recommended viewport meta tag.")
 
     titleTag = soup.find('title')
     title = None if not titleTag else titleTag.text
     if not title:
+        status = "error"
         messages.append(u"Page is missing the title tag.")
 
     descriptionTag = soup.find('meta', attrs={'name': 'description'})
     description = None if not descriptionTag else descriptionTag["content"]
     if not description:
+        status = "error"
         messages.append(u"Page is missing the description meta tag.")
 
-    viewportTag = soup.find('meta', attrs={'name': 'viewport'})
-    viewport = None if not viewportTag else viewportTag["content"]
-    if not viewport:
-        messages.append(u"Page is missing the recommended viewport meta tag.")
+
 
     if contentType and title and description and viewport:
         status = "success"
         meta_tags_correct = True
-        messages.append(u"Page contains properly structured article.")
+        messages.append(u"Page contains the main recommended meta tags.")
 
         if len(title) > 70:
             messages.append(u"WARNING: Title length should be 60-70 characters, currently it is %s." % (len(title)))
@@ -53,8 +59,7 @@ def has_meta_tags(page, settings):
         if len(description) > 155:
             messages.append(u"WARNING: Description length should be no more than 155 characters, currently it is %s." % (len(description)))
             status = "warning"
-    else:
-        status = "error"
+
 
     data = {
         'contentType': contentType,
