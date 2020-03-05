@@ -24,22 +24,22 @@ def has_meta_tags(page, settings):
         or soup.find('meta', attrs={'http-equiv': 'content-type'})
     contentType = None if not contentTypeTag else contentTypeTag["content"]
     if not contentType:
-        messages.append(u"Page is missing a Content-Type meta tag.")
+        messages.append(u"Page is missing the recommended Content-Type meta tag.")
 
     titleTag = soup.find('title')
     title = None if not titleTag else titleTag.text
     if not title:
-        messages.append(u"Page is missing a title tag.")
+        messages.append(u"Page is missing the title tag.")
 
     descriptionTag = soup.find('meta', attrs={'name': 'description'})
     description = None if not descriptionTag else descriptionTag["content"]
     if not description:
-        messages.append(u"Page is missing a description meta tag.")
+        messages.append(u"Page is missing the description meta tag.")
 
     viewportTag = soup.find('meta', attrs={'name': 'viewport'})
     viewport = None if not viewportTag else viewportTag["content"]
     if not viewport:
-        messages.append(u"Page is missing a viewport meta tag.")
+        messages.append(u"Page is missing the recommended viewport meta tag.")
 
     if contentType and title and description and viewport:
         status = "success"
@@ -127,6 +127,8 @@ def has_socialmedia_tags(page, settings):
             tagKey = next(iter(tagAttrs))
             tagAttrFormatted = "%s__%s"%(tagKey, tagAttrs[tagKey])
             messages.append(u"Recommended social meta tag %s was not found." % (tagAttrFormatted))
+    if social_tags_correct:
+        messages.append(u"All recommended social meta tags were found.")
 
     all_tags = [{'name': 'description'},
         {'itemprop': 'name'}, {'itemprop': 'description'},
