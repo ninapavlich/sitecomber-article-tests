@@ -167,7 +167,7 @@ class SpellCheckTest(BaseSiteTest):
         if should_test_page(page):
 
             contains_misspellings, message, data = check_spelling(page, self.settings)
-            status = PageTestResult.STATUS_SUCCESS if not contains_misspellings else PageTestResult.STATUS_ERROR
+            status = PageTestResult.STATUS_SUCCESS if not contains_misspellings else PageTestResult.STATUS_WARNING
 
             r, created = PageTestResult.objects.get_or_create(
                 page=page,
