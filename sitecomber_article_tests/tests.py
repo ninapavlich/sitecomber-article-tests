@@ -1,6 +1,7 @@
 import logging
 import json
 
+from django.apps import AppConfig
 from sitecomber.apps.shared.interfaces import BaseSiteTest
 
 from .utils.article import is_reader_view_enabled, contains_placeholder_text, get_article_readtime
@@ -8,6 +9,10 @@ from .utils.spelling import check_spelling
 from .utils.seo import has_meta_tags, has_socialmedia_tags
 
 logger = logging.getLogger('django')
+class ArticleTestsConfig(AppConfig):
+    name = 'sitecomber_article_tests.tests'
+    label = 'sitecomber_article_tests'
+default_app_config = 'sitecomber_article_tests.tests.ArticleTestsConfig'
 
 
 def should_test_page(page):
